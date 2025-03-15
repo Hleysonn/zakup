@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from '@tanstack/react-router';
 import axiosInstance from '../config/axios';
-import { FaArrowLeft, FaSpinner, FaExclamationTriangle, FaBuilding, FaPhone, FaEnvelope, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
+import { FaArrowLeft, FaSpinner, FaExclamationTriangle, FaBuilding, FaPhone, FaEnvelope, FaMapMarkerAlt, FaIdCard, FaHandshake, FaChartLine, FaUsers } from 'react-icons/fa';
 import ProductList from '../components/products/ProductList';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -15,6 +15,9 @@ interface Sponsor {
   telephone?: string;
   adresse?: string;
   numeroTVA?: string;
+  dateCreation?: string;
+  nombrePartenariats?: number;
+  chiffreAffaires?: number;
 }
 
 const SponsorDetail = () => {
@@ -22,6 +25,7 @@ const SponsorDetail = () => {
   const [sponsor, setSponsor] = useState<Sponsor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'produits' | 'statistiques'>('produits');
   const { user } = useAuth();
 
   useEffect(() => {
@@ -68,77 +72,184 @@ const SponsorDetail = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link
-        to="/sponsors"
-        className="inline-flex items-center text-primary hover:text-primary/80 mb-6"
-      >
-        <FaArrowLeft className="mr-2" /> Retour aux sponsors
-      </Link>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white">
+        <div className="container mx-auto px-4 py-8">
+          <Link
+            to="/sponsors"
+            className="inline-flex items-center text-gray-300 hover:text-white mb-6"
+          >
+            <FaArrowLeft className="mr-2" /> Retour aux sponsors
+          </Link>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-        <div className="md:flex">
-          <div className="md:w-1/3 bg-gray-100 p-6 flex items-center justify-center">
-            {sponsor.logo ? (
-              <img
-                src={sponsor.logo}
-                alt={sponsor.raisonSociale}
-                className="max-w-full h-auto rounded-lg"
-              />
-            ) : (
-              <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center">
-                <FaBuilding className="text-gray-400 text-6xl" />
-              </div>
-            )}
-          </div>
-          
-          <div className="md:w-2/3 p-6">
-            <h1 className="text-3xl font-bold mb-4">{sponsor.raisonSociale}</h1>
+          <div className="md:flex items-center gap-8">
+            <div className="mb-6 md:mb-0">
+              {sponsor.logo ? (
+                <img
+                  src={sponsor.logo}
+                  alt={sponsor.raisonSociale}
+                  className="w-40 h-40 rounded-full border-4 border-white shadow-lg object-cover"
+                />
+              ) : (
+                <div className="w-40 h-40 rounded-full border-4 border-white shadow-lg bg-white flex items-center justify-center">
+                  <FaBuilding className="text-gray-700 text-5xl" />
+                </div>
+              )}
+            </div>
             
-            {sponsor.description && (
-              <p className="text-gray-600 mb-6">{sponsor.description}</p>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sponsor.email && (
-                <div className="flex items-center text-gray-600">
-                  <FaEnvelope className="mr-2" />
-                  <a href={`mailto:${sponsor.email}`} className="hover:text-primary">
-                    {sponsor.email}
-                  </a>
-                </div>
-              )}
-              
-              {sponsor.telephone && (
-                <div className="flex items-center text-gray-600">
-                  <FaPhone className="mr-2" />
-                  <a href={`tel:${sponsor.telephone}`} className="hover:text-primary">
-                    {sponsor.telephone}
-                  </a>
-                </div>
-              )}
-              
-              {sponsor.adresse && (
-                <div className="flex items-center text-gray-600">
-                  <FaMapMarkerAlt className="mr-2" />
-                  <span>{sponsor.adresse}</span>
-                </div>
-              )}
-
-              {sponsor.numeroTVA && (
-                <div className="flex items-center text-gray-600">
-                  <FaIdCard className="mr-2" />
-                  <span>TVA: {sponsor.numeroTVA}</span>
-                </div>
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-4 text-white">{sponsor.raisonSociale}</h1>
+              {sponsor.description && (
+                <p className="text-gray-300 text-lg">{sponsor.description}</p>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-bold mb-6">Produits du sponsor</h2>
-        <ProductList sponsorId={sponsorId} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center text-gray-900 mb-4">
+              <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                <FaHandshake className="text-gray-700 text-xl" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Partenariats</h3>
+                <p className="text-gray-700">{sponsor.nombrePartenariats || 0} clubs partenaires</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center text-gray-900 mb-4">
+              <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                <FaChartLine className="text-gray-700 text-xl" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Chiffre d'affaires</h3>
+                <p className="text-gray-700">{sponsor.chiffreAffaires ? `${sponsor.chiffreAffaires.toLocaleString('fr-FR')} €` : 'Non disponible'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center text-gray-900 mb-4">
+              <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                <FaUsers className="text-gray-700 text-xl" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Clients satisfaits</h3>
+                <p className="text-gray-700">+1000 clients satisfaits</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900">Informations de contact</h2>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {sponsor.email && (
+                <div className="flex items-center text-gray-900">
+                  <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                    <FaEnvelope className="text-gray-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-gray-900">Email</h3>
+                    <a href={`mailto:${sponsor.email}`} className="hover:text-gray-700 text-gray-600">
+                      {sponsor.email}
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {sponsor.telephone && (
+                <div className="flex items-center text-gray-900">
+                  <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                    <FaPhone className="text-gray-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-gray-900">Téléphone</h3>
+                    <a href={`tel:${sponsor.telephone}`} className="hover:text-gray-700 text-gray-600">
+                      {sponsor.telephone}
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {sponsor.adresse && (
+                <div className="flex items-center text-gray-900">
+                  <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                    <FaMapMarkerAlt className="text-gray-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-gray-900">Adresse</h3>
+                    <span className="text-gray-600">{sponsor.adresse}</span>
+                  </div>
+                </div>
+              )}
+
+              {sponsor.numeroTVA && (
+                <div className="flex items-center text-gray-900">
+                  <div className="w-12 h-12 bg-gray-700/10 rounded-full flex items-center justify-center mr-4">
+                    <FaIdCard className="text-gray-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-gray-900">Numéro de TVA</h3>
+                    <span className="text-gray-600">{sponsor.numeroTVA}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="border-b border-gray-200">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab('produits')}
+                className={`px-6 py-4 font-medium flex-1 text-center ${
+                  activeTab === 'produits'
+                    ? 'bg-gray-700 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Produits
+              </button>
+              <button
+                onClick={() => setActiveTab('statistiques')}
+                className={`px-6 py-4 font-medium flex-1 text-center ${
+                  activeTab === 'statistiques'
+                    ? 'bg-gray-700 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Statistiques
+              </button>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {activeTab === 'produits' ? (
+              <ProductList sponsorId={sponsorId} />
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold mb-2 text-gray-900">Ventes mensuelles</h3>
+                  <p className="text-gray-600">Statistiques à venir...</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold mb-2 text-gray-900">Produits populaires</h3>
+                  <p className="text-gray-600">Statistiques à venir...</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
