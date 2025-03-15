@@ -1,96 +1,50 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from '@tanstack/react-router';
-import axios from 'axios';
+import axiosInstance from '../config/axios';
 import { FaArrowLeft, FaSpinner, FaExclamationTriangle, FaStar, FaUsers, FaPhone, FaEnvelope, FaBuilding, FaFutbol } from 'react-icons/fa';
 import ProductList from '../components/products/ProductList';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
-interface Sponsor {
-  _id: string;
-  raisonSociale: string;
-  logo?: string;
-}
-
 interface Club {
   _id: string;
   raisonSociale: string;
-  description: string;
   logo?: string;
-  email: string;
-  telephone: string;
-  sport: string;
-  sponsors: Sponsor[];
-  donsSponsors: {
-    sponsor: Sponsor;
-    montant: number;
-    date: string;
-  }[];
-  subscribers: string[];
+  description?: string;
+  sport?: string;
+  email?: string;
+  telephone?: string;
+  adresse?: string;
 }
 
 const ClubDetail = () => {
   const { clubId } = useParams({ from: '/clubs/$clubId' });
-  const { user, isAuthenticated } = useAuth();
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSubscribing, setIsSubscribing] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchClub = async () => {
+    const fetchClubDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/clubs/${clubId}`);
+        const response = await axiosInstance.get(`/api/clubs/${clubId}`);
         setClub(response.data.data);
-        
-        // Vérifier si l'utilisateur est abonné
-        if (isAuthenticated && user && response.data.data.subscribers) {
-          setIsSubscribed(response.data.data.subscribers.includes(user._id));
-        }
-        
         setError(null);
       } catch (err) {
-        setError('Erreur lors du chargement des informations du club');
-        console.error(err);
+        setError('Erreur lors du chargement des détails du club');
+        console.error('Erreur lors du chargement des détails du club:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchClub();
-  }, [clubId, isAuthenticated, user]);
-
-  const handleSubscription = async () => {
-    if (!isAuthenticated) {
-      toast.error('Vous devez être connecté pour vous abonner');
-      return;
-    }
-
-    try {
-      setIsSubscribing(true);
-      
-      if (isSubscribed) {
-        await axios.put(`/api/users/unsubscribe-club/${clubId}`);
-        setIsSubscribed(false);
-        toast.success('Désabonnement réussi');
-      } else {
-        await axios.put(`/api/users/subscribe-club/${clubId}`);
-        setIsSubscribed(true);
-        toast.success('Abonnement réussi');
-      }
-    } catch (err) {
-      toast.error('Une erreur est survenue');
-      console.error(err);
-    } finally {
-      setIsSubscribing(false);
-    }
-  };
+    fetchClubDetails();
+  }, [clubId]);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[50vh]">
+      <div className="flex items-center justify-center min-h-[50vh]">
         <FaSpinner className="animate-spin text-4xl text-primary" />
       </div>
     );
@@ -98,17 +52,14 @@ const ClubDetail = () => {
 
   if (error || !club) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <FaExclamationTriangle className="text-red-500 text-5xl mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-red-600 mb-4">
-          {error || 'Club non trouvé'}
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Nous n'avons pas pu trouver les informations de ce club.
-        </p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center">
+          <FaExclamationTriangle className="mr-2" />
+          <span>{error || 'Club non trouvé'}</span>
+        </div>
         <Link
           to="/clubs"
-          className="bg-primary text-white py-2 px-6 rounded-md hover:bg-primary/90 inline-flex items-center"
+          className="mt-4 inline-flex items-center text-primary hover:text-primary/80"
         >
           <FaArrowLeft className="mr-2" /> Retour aux clubs
         </Link>
@@ -118,102 +69,76 @@ const ClubDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Link to="/clubs" className="text-primary hover:underline flex items-center mb-6">
+      <Link
+        to="/clubs"
+        className="inline-flex items-center text-primary hover:text-primary/80 mb-6"
+      >
         <FaArrowLeft className="mr-2" /> Retour aux clubs
       </Link>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
         <div className="md:flex">
-          <div className="md:w-1/3 bg-gray-100 flex items-center justify-center p-8">
+          <div className="md:w-1/3 bg-gray-100 p-6 flex items-center justify-center">
             {club.logo ? (
               <img
                 src={club.logo}
                 alt={club.raisonSociale}
-                className="max-w-full max-h-48 object-contain"
+                className="max-w-full h-auto rounded-lg"
               />
             ) : (
-              <FaUsers className="text-gray-400" size={96} />
+              <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center">
+                <FaUsers className="text-gray-400 text-6xl" />
+              </div>
             )}
           </div>
           
           <div className="md:w-2/3 p-6">
-            <div className="flex justify-between items-start">
-              <h1 className="text-3xl font-bold mb-4">{club.raisonSociale}</h1>
-              
-              <button
-                onClick={handleSubscription}
-                disabled={isSubscribing}
-                className={`px-4 py-2 rounded-md flex items-center ${
-                  isSubscribed 
-                    ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                    : 'bg-primary text-white hover:bg-primary/90'
-                }`}
-              >
-                {isSubscribing ? (
-                  <FaSpinner className="animate-spin mr-2" />
-                ) : (
-                  <FaStar className={`mr-2 ${isSubscribed ? 'text-yellow-500' : ''}`} />
-                )}
-                {isSubscribed ? 'Abonné' : 'S\'abonner'}
-              </button>
-            </div>
+            <h1 className="text-3xl font-bold mb-4">{club.raisonSociale}</h1>
             
-            <div className="flex items-center text-gray-700 mb-4">
-              <FaFutbol className="mr-2 text-primary" />
-              <span>{club.sport}</span>
-            </div>
+            {club.sport && (
+              <div className="flex items-center mb-4 text-gray-600">
+                <FaFutbol className="mr-2" />
+                <span>{club.sport}</span>
+              </div>
+            )}
             
-            <p className="text-gray-700 mb-6">{club.description}</p>
-            
+            {club.description && (
+              <p className="text-gray-600 mb-6">{club.description}</p>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center">
-                <FaEnvelope className="text-primary mr-2" />
-                <a href={`mailto:${club.email}`} className="text-primary hover:underline">
-                  {club.email}
-                </a>
-              </div>
-              <div className="flex items-center">
-                <FaPhone className="text-primary mr-2" />
-                <a href={`tel:${club.telephone}`} className="text-primary hover:underline">
-                  {club.telephone}
-                </a>
-              </div>
+              {club.email && (
+                <div className="flex items-center text-gray-600">
+                  <FaEnvelope className="mr-2" />
+                  <a href={`mailto:${club.email}`} className="hover:text-primary">
+                    {club.email}
+                  </a>
+                </div>
+              )}
+              
+              {club.telephone && (
+                <div className="flex items-center text-gray-600">
+                  <FaPhone className="mr-2" />
+                  <a href={`tel:${club.telephone}`} className="hover:text-primary">
+                    {club.telephone}
+                  </a>
+                </div>
+              )}
+              
+              {club.adresse && (
+                <div className="flex items-center text-gray-600 col-span-2">
+                  <FaBuilding className="mr-2" />
+                  <span>{club.adresse}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {club.sponsors && club.sponsors.length > 0 && (
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Nos sponsors</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {club.sponsors.map(sponsor => (
-              <Link
-                key={sponsor._id}
-                to={`/sponsors/${sponsor._id}`}
-                className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex flex-col items-center"
-              >
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                  {sponsor.logo ? (
-                    <img
-                      src={sponsor.logo}
-                      alt={sponsor.raisonSociale}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <FaBuilding className="text-gray-400" size={24} />
-                  )}
-                </div>
-                <h3 className="font-semibold text-center">{sponsor.raisonSociale}</h3>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div>
         <h2 className="text-2xl font-bold mb-6">Produits du club</h2>
-        <ProductList filters={{ sponsors: [], clubs: [clubId], categories: [] }} />
+        <ProductList clubId={clubId} />
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../config/axios';
 import { FaSpinner } from 'react-icons/fa';
 import { Link } from '@tanstack/react-router';
+import { AxiosError } from 'axios';
 
 interface Club {
   _id: string;
@@ -20,15 +21,20 @@ const ClubsPage = () => {
     const fetchClubs = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/clubs');
+        const response = await axiosInstance.get('/api/clubs');
         if (response.data.success) {
           setClubs(response.data.data);
         } else {
           throw new Error('Erreur lors du chargement des clubs');
         }
-      } catch (err: any) {
-        setError(err.response?.data?.error || 'Une erreur est survenue');
-        console.error('Erreur:', err);
+      } catch (err) {
+        if (err instanceof AxiosError) {
+          setError(err.response?.data?.error || err.message || 'Une erreur est survenue');
+          console.error('Erreur Axios:', err.response?.data);
+        } else {
+          setError('Une erreur inattendue est survenue');
+          console.error('Erreur:', err);
+        }
       } finally {
         setLoading(false);
       }
@@ -40,15 +46,15 @@ const ClubsPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <FaSpinner className="animate-spin text-4xl text-primary" />
+        <FaSpinner className="text-4xl animate-spin text-primary" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <div className="container px-4 py-8 mx-auto">
+        <div className="px-4 py-3 text-red-700 bg-red-100 border border-red-400 rounded">
           {error}
         </div>
       </div>
@@ -56,34 +62,34 @@ const ClubsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Clubs Sportifs</h1>
+    <div className="container px-4 py-8 mx-auto">
+      <h1 className="mb-8 text-3xl font-bold">Clubs Sportifs</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {clubs.map((club) => (
           <Link
             key={club._id}
             to={`/clubs/${club._id}`}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+            className="overflow-hidden transition-shadow bg-white rounded-lg shadow-md hover:shadow-lg"
           >
             <div className="aspect-w-16 aspect-h-9">
               {club.logo ? (
                 <img
                   src={club.logo}
                   alt={club.raisonSociale}
-                  className="w-full h-full object-cover"
+                  className="object-cover w-full h-full"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400 text-lg">{club.raisonSociale.charAt(0)}</span>
+                <div className="flex items-center justify-center w-full h-full bg-gray-200">
+                  <span className="text-lg text-gray-400">{club.raisonSociale.charAt(0)}</span>
                 </div>
               )}
             </div>
             
             <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{club.raisonSociale}</h2>
+              <h2 className="mb-2 text-xl font-semibold">{club.raisonSociale}</h2>
               {club.sport && (
-                <p className="text-gray-600 mb-2">
+                <p className="mb-2 text-gray-600">
                   Sport : {club.sport}
                 </p>
               )}
@@ -98,7 +104,7 @@ const ClubsPage = () => {
       </div>
 
       {clubs.length === 0 && (
-        <div className="text-center py-8">
+        <div className="py-8 text-center">
           <p className="text-gray-600">Aucun club trouvé</p>
         </div>
       )}

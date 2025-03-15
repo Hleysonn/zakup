@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
-import axios from 'axios';
+import axiosInstance from '../config/axios';
 import { FaUsers, FaSearch, FaSpinner, FaFutbol } from 'react-icons/fa';
-
-// Configuration de base d'Axios
-const api = axios.create({
-  baseURL: 'http://localhost:5000',
-  timeout: 5000,
-});
 
 interface Club {
   _id: string;
@@ -29,7 +23,7 @@ const Clubs = () => {
     const fetchClubs = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/clubs');
+        const response = await axiosInstance.get('/api/clubs');
         setClubs(response.data.data);
         
         // Extraire la liste des sports pour le filtre
@@ -67,15 +61,15 @@ const Clubs = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Clubs Sportifs</h1>
+    <div className="container px-4 py-8 mx-auto">
+      <h1 className="mb-6 text-3xl font-bold">Clubs Sportifs</h1>
       
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <p className="text-gray-700 mb-6">
+      <div className="p-6 mb-8 bg-white rounded-lg shadow-md">
+        <p className="mb-6 text-gray-700">
           Découvrez les clubs sportifs partenaires de notre plateforme. Soutenez vos clubs préférés en achetant leurs produits et en participant à leurs événements.
         </p>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="flex flex-col gap-4 mb-4 md:flex-row">
           <form onSubmit={handleSearch} className="flex flex-1">
             <input
               type="text"
@@ -86,7 +80,7 @@ const Clubs = () => {
             />
             <button
               type="submit"
-              className="bg-primary text-white px-4 py-2 rounded-r-md hover:bg-primary/90"
+              className="px-4 py-2 text-white bg-primary rounded-r-md hover:bg-primary/90"
             >
               <FaSearch />
             </button>
@@ -106,52 +100,52 @@ const Clubs = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
+        <div className="flex items-center justify-center h-64">
           <FaSpinner className="animate-spin text-primary" size={40} />
         </div>
       ) : error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="px-4 py-3 text-red-700 bg-red-100 border border-red-400 rounded">
           <p>{error}</p>
         </div>
       ) : filteredClubs.length === 0 ? (
-        <div className="bg-gray-100 border border-gray-300 text-gray-700 px-4 py-8 rounded text-center">
+        <div className="px-4 py-8 text-center text-gray-700 bg-gray-100 border border-gray-300 rounded">
           <p className="text-lg">Aucun club trouvé</p>
-          <p className="text-sm mt-2">Essayez de modifier votre recherche ou votre filtre</p>
+          <p className="mt-2 text-sm">Essayez de modifier votre recherche ou votre filtre</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredClubs.map(club => (
             <Link
               key={club._id}
               to={`/clubs/${club._id}`}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              className="overflow-hidden transition-shadow bg-white rounded-lg shadow-md hover:shadow-lg"
             >
-              <div className="h-40 bg-gray-100 flex items-center justify-center">
+              <div className="flex items-center justify-center h-40 bg-gray-100">
                 {club.logo ? (
                   <img
                     src={club.logo}
                     alt={club.raisonSociale}
-                    className="max-h-full max-w-full object-contain"
+                    className="object-contain max-w-full max-h-full"
                   />
                 ) : (
                   <FaUsers className="text-gray-400" size={64} />
                 )}
               </div>
               <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{club.raisonSociale}</h2>
+                <h2 className="mb-2 text-xl font-semibold">{club.raisonSociale}</h2>
                 
                 {club.sport && (
-                  <div className="flex items-center text-gray-600 mb-2">
+                  <div className="flex items-center mb-2 text-gray-600">
                     <FaFutbol className="mr-2" />
                     <span>{club.sport}</span>
                   </div>
                 )}
                 
                 {club.description && (
-                  <p className="text-gray-600 line-clamp-2 mb-3">{club.description}</p>
+                  <p className="mb-3 text-gray-600 line-clamp-2">{club.description}</p>
                 )}
                 
-                <div className="mt-4 text-primary font-medium hover:underline">
+                <div className="mt-4 font-medium text-primary hover:underline">
                   Voir les détails
                 </div>
               </div>

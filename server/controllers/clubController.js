@@ -43,75 +43,87 @@ export const upload = multer({
 // @route   GET /api/clubs
 // @access  Public
 export const getClubs = asyncHandler(async (req, res, next) => {
-  let query;
+  try {
+    console.log('Début de getClubs');
+    let query;
 
-  // Copie des paramètres de requête
-  const reqQuery = { ...req.query };
+    // Copie des paramètres de requête
+    const reqQuery = { ...req.query };
+    console.log('Paramètres de requête:', reqQuery);
 
-  // Champs à exclure
-  const removeFields = ['select', 'sort', 'page', 'limit'];
+    // Champs à exclure
+    const removeFields = ['select', 'sort', 'page', 'limit'];
 
-  // Supprimer les champs spéciaux
-  removeFields.forEach(param => delete reqQuery[param]);
+    // Supprimer les champs spéciaux
+    removeFields.forEach(param => delete reqQuery[param]);
 
-  // Créer une chaîne de requête
-  let queryStr = JSON.stringify(reqQuery);
+    // Créer une chaîne de requête
+    let queryStr = JSON.stringify(reqQuery);
+    console.log('Chaîne de requête:', queryStr);
 
-  // Créer des opérateurs ($gt, $gte, etc)
-  queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    // Créer des opérateurs ($gt, $gte, etc)
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-  // Trouver les clubs
-  query = Club.find(JSON.parse(queryStr));
+    // Trouver les clubs
+    query = Club.find(JSON.parse(queryStr));
+    console.log('Requête MongoDB:', query.getFilter());
 
-  // Sélectionner des champs
-  if (req.query.select) {
-    const fields = req.query.select.split(',').join(' ');
-    query = query.select(fields);
+    // Sélectionner des champs
+    if (req.query.select) {
+      const fields = req.query.select.split(',').join(' ');
+      query = query.select(fields);
+    }
+
+    // Trier
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await Club.countDocuments(JSON.parse(queryStr));
+    console.log('Total de clubs trouvés:', total);
+
+    query = query.skip(startIndex).limit(limit);
+
+    // Exécuter la requête
+    const clubs = await query.populate('sponsors', 'raisonSociale logo');
+    console.log('Nombre de clubs récupérés:', clubs.length);
+
+    // Pagination result
+    const pagination = {};
+
+    if (endIndex < total) {
+      pagination.next = {
+        page: page + 1,
+        limit
+      };
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit
+      };
+    }
+
+    console.log('Envoi de la réponse');
+    res.status(200).json({
+      success: true,
+      count: clubs.length,
+      pagination,
+      data: clubs
+    });
+  } catch (error) {
+    console.error('Erreur dans getClubs:', error);
+    return next(new ErrorResponse('Erreur lors de la récupération des clubs', 500));
   }
-
-  // Trier
-  if (req.query.sort) {
-    const sortBy = req.query.sort.split(',').join(' ');
-    query = query.sort(sortBy);
-  } else {
-    query = query.sort('-createdAt');
-  }
-
-  // Pagination
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 10;
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-  const total = await Club.countDocuments(JSON.parse(queryStr));
-
-  query = query.skip(startIndex).limit(limit);
-
-  // Exécuter la requête
-  const clubs = await query.populate('sponsors', 'raisonSociale logo');
-
-  // Pagination result
-  const pagination = {};
-
-  if (endIndex < total) {
-    pagination.next = {
-      page: page + 1,
-      limit
-    };
-  }
-
-  if (startIndex > 0) {
-    pagination.prev = {
-      page: page - 1,
-      limit
-    };
-  }
-
-  res.status(200).json({
-    success: true,
-    count: clubs.length,
-    pagination,
-    data: clubs
-  });
 });
 
 // @desc    Obtenir un club par ID

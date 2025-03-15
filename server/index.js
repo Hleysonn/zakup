@@ -30,6 +30,13 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+// Log toutes les requêtes
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 // Configuration CORS
 app.use(cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
@@ -38,16 +45,24 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Ajouter des en-têtes CORS manuellement pour plus de contrôle
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin === 'http://localhost:5173' || origin === 'http://127.0.0.1:5173') {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 // Log toutes les requêtes en développement
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-  });
 }
 
-// Servir les fichiers statiques - configuration la plus simple possible
+// Servir les fichiers statiques
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes API
@@ -60,10 +75,10 @@ app.use('/api/users', userRoutes);
 
 // Simple error handler
 app.use((err, req, res, next) => {
-  console.error('Erreur:'.red, err.stack);
-  res.status(500).json({
+  console.error('Erreur:'.red, err);
+  res.status(err.statusCode || 500).json({
     success: false,
-    message: err.message || 'Erreur serveur'
+    error: err.message || 'Erreur serveur'
   });
 });
 
