@@ -8,35 +8,43 @@ import {
   getSponsorDashboard,
   createProduct,
   uploadProductImage,
-  upload
+  upload,
+  getSponsorProfile,
+  logoUpload,
+  uploadSponsorLogo
 } from '../controllers/sponsorController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Routes générales
+// Routes publiques
 router.route('/')
   .get(getSponsors);
 
-// Routes spécifiques
+// Routes protégées pour le profil personnel
+// Utiliser /me au lieu de /profile pour éviter les conflits
+router.route('/me')
+  .get(protect, authorize('sponsor'), getSponsorProfile)
+  .put(protect, authorize('sponsor'), updateSponsorProfile);
+
+// Autres routes protégées
 router.route('/dashboard')
   .get(protect, authorize('sponsor'), getSponsorDashboard);
 
-router.route('/profile')
-  .put(protect, authorize('sponsor'), updateSponsorProfile);
+router.route('/upload-logo')
+  .post(protect, authorize('sponsor'), logoUpload.single('logo'), uploadSponsorLogo);
 
-// Routes pour les produits
 router.route('/products')
   .post(protect, authorize('sponsor'), upload.single('image'), createProduct);
 
-// Routes pour les clubs
 router.route('/sponsor-club/:id')
   .put(protect, authorize('sponsor'), sponsorClub);
 
 router.route('/don-club/:id')
   .post(protect, authorize('sponsor'), donToClub);
 
-// Route avec paramètre dynamique en dernier
+// Route de détail d'un sponsor par ID (publique)
+// Doit être en dernier pour éviter les conflits
 router.route('/:id')
   .get(getSponsor);
 

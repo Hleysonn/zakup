@@ -4,6 +4,97 @@ import User from '../models/User.js';
 import Sponsor from '../models/Sponsor.js';
 import Club from '../models/Club.js';
 import Order from '../models/Order.js';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configuration de Multer pour l'upload d'images de profil
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../../uploads/users');
+    
+    // Créer le répertoire s'il n'existe pas
+    if (!fs.existsSync(uploadDir)){
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'user-' + uniqueSuffix + ext);
+  }
+});
+
+// Filtre pour n'accepter que les images
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png|gif/;
+  const mimetype = filetypes.test(file.mimetype);
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  }
+  cb(new Error("Seules les images sont acceptées"));
+};
+
+export const logoUpload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 1024 * 1024 * 5 } // 5MB
+});
+
+// @desc    Upload image de profil utilisateur
+// @route   POST /api/users/upload-avatar
+// @access  Private
+export const uploadUserAvatar = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return next(new ErrorResponse('Veuillez télécharger une image', 400));
+  }
+
+  // Chemin relatif pour stocker dans la BDD
+  const avatarPath = `/uploads/users/${req.file.filename}`;
+
+  console.log('Avatar path:', avatarPath);
+  console.log('File info:', req.file);
+
+  // Récupérer l'utilisateur actuel et mettre à jour son avatar
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { avatar: avatarPath },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: user,
+    avatar: avatarPath
+  });
+});
+
+// @desc    Récupérer le profil utilisateur
+// @route   GET /api/users/me
+// @access  Private (all users)
+export const getUserProfile = asyncHandler(async (req, res, next) => {
+  // L'utilisateur est déjà dans req.user grâce au middleware protect
+  console.log('Récupération du profil pour:', req.user.id, 'Type:', req.userType);
+  
+  // req.user contient déjà l'utilisateur complet récupéré par le middleware protect
+  if (!req.user) {
+    return next(new ErrorResponse('Utilisateur non trouvé', 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: req.user,
+    userType: req.userType
+  });
+});
 
 // @desc    Mettre à jour le profil utilisateur
 // @route   PUT /api/users/profile
@@ -15,6 +106,8 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
     prenom: req.body.prenom,
     telephone: req.body.telephone,
     adresse: req.body.adresse,
+    ville: req.body.ville,
+    codePostal: req.body.codePostal,
     acceptNewsletter: req.body.acceptNewsletter,
     acceptSMS: req.body.acceptSMS
   };

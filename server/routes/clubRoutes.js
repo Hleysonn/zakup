@@ -9,7 +9,10 @@ import {
   getClubProducts,
   updateClubProduct,
   deleteClubProduct,
-  upload
+  productUpload,
+  logoUpload,
+  getClubProfile,
+  uploadClubLogo
 } from '../controllers/clubController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -21,13 +24,21 @@ router.route('/')
 router.route('/dashboard')
   .get(protect, authorize('club'), getClubDashboard);
 
-router.route('/profile')
+router.route('/me')
+  .get(protect, authorize('club'), getClubProfile)
   .put(protect, authorize('club'), updateClubProfile);
+
+router.route('/profile')
+  .get(protect, authorize('club'), getClubProfile)
+  .put(protect, authorize('club'), updateClubProfile);
+
+router.route('/upload-logo')
+  .post(protect, authorize('club'), logoUpload.single('logo'), uploadClubLogo);
 
 // Routes pour les produits
 router.route('/products')
   .get(protect, authorize('club'), getClubProducts)
-  .post(protect, authorize('club'), upload.single('image'), addClubProduct);
+  .post(protect, authorize('club'), productUpload.single('image'), addClubProduct);
 
 router.route('/products/:id')
   .put(protect, authorize('club'), updateClubProduct)

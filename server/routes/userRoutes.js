@@ -1,19 +1,28 @@
 import express from 'express';
 import {
   updateUserProfile,
+  getUserProfile,
   subscribeSponsor,
   unsubscribeSponsor,
   subscribeClub,
   unsubscribeClub,
   getUserSponsors,
-  getUserClubs
+  getUserClubs,
+  logoUpload,
+  uploadUserAvatar
 } from '../controllers/userController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
+router.route('/me')
+  .get(protect, getUserProfile);
+
 router.route('/profile')
   .put(protect, authorize('user'), updateUserProfile);
+
+router.route('/upload-avatar')
+  .post(protect, authorize('user'), logoUpload.single('avatar'), uploadUserAvatar);
 
 router.route('/subscribe-sponsor/:id')
   .put(protect, authorize('user'), subscribeSponsor);

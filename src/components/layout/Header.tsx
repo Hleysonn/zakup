@@ -63,6 +63,21 @@ export const Header = () => {
     };
   }, [isUserMenuOpen]);
 
+  const handleProfileClick = () => {
+    console.log("Bouton Mon Profil cliqué, userType:", userType);
+    setIsUserMenuOpen(false);
+    if (userType === 'club') {
+      console.log("Navigation vers /club/profile");
+      navigate({ to: '/club/profile' });
+    } else if (userType === 'sponsor') {
+      console.log("Navigation vers /sponsor/profile");
+      navigate({ to: '/sponsor/profile' });
+    } else {
+      console.log("Navigation vers /profile");
+      navigate({ to: '/profile' });
+    }
+  };
+
   return (
     <header className="bg-slate-900/80 shadow-sm border-b border-slate-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -125,22 +140,45 @@ export const Header = () => {
                 </button>
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                    {userType === 'sponsor' && (
-                      <Link to="/sponsor/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <FaTachometerAlt className="mr-2 text-gray-500" />
-                        Dashboard Sponsor
-                      </Link>
-                    )}
                     {userType === 'club' && (
-                      <Link to="/club/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <FaTachometerAlt className="mr-2 text-gray-500" />
-                        Dashboard Club
-                      </Link>
+                      <>
+                        <Link to="/club/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <FaTachometerAlt className="mr-2 text-gray-500" />
+                          Dashboard Club
+                        </Link>
+                        <button 
+                          onClick={handleProfileClick}
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          <FaUser className="mr-2 text-gray-500" />
+                          Mon Profil
+                        </button>
+                      </>
                     )}
-                    <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <FaUser className="mr-2 text-gray-500" />
-                      Mon Profil
-                    </Link>
+                    {userType === 'sponsor' && (
+                      <>
+                        <Link to="/sponsor/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <FaTachometerAlt className="mr-2 text-gray-500" />
+                          Dashboard Sponsor
+                        </Link>
+                        <button 
+                          onClick={handleProfileClick}
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          <FaUser className="mr-2 text-gray-500" />
+                          Mon Profil
+                        </button>
+                      </>
+                    )}
+                    {userType !== 'club' && userType !== 'sponsor' && (
+                      <button 
+                        onClick={handleProfileClick}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                      >
+                        <FaUser className="mr-2 text-gray-500" />
+                        Mon Profil
+                      </button>
+                    )}
                     <Link to="/orders" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       <FaShoppingCart className="mr-2 text-gray-500" />
                       Mes Commandes
@@ -206,22 +244,45 @@ export const Header = () => {
               {isAuth && user && (
                 <>
                   <hr className="border-gray-700 my-2" />
-                  {userType === 'sponsor' && (
-                    <Link to="/sponsor/dashboard" className="nav-link flex items-center">
-                      <FaTachometerAlt className="mr-2" />
-                      Dashboard Sponsor
-                    </Link>
-                  )}
                   {userType === 'club' && (
-                    <Link to="/club/dashboard" className="nav-link flex items-center">
-                      <FaTachometerAlt className="mr-2" />
-                      Dashboard Club
-                    </Link>
+                    <>
+                      <Link to="/club/dashboard" className="nav-link flex items-center">
+                        <FaTachometerAlt className="mr-2" />
+                        Dashboard Club
+                      </Link>
+                      <button 
+                        onClick={handleProfileClick}
+                        className="nav-link flex items-center w-full text-left"
+                      >
+                        <FaUser className="mr-2" />
+                        Mon Profil
+                      </button>
+                    </>
                   )}
-                  <Link to="/profile" className="nav-link flex items-center">
-                    <FaUser className="mr-2" />
-                    Mon Profil
-                  </Link>
+                  {userType === 'sponsor' && (
+                    <>
+                      <Link to="/sponsor/dashboard" className="nav-link flex items-center">
+                        <FaTachometerAlt className="mr-2" />
+                        Dashboard Sponsor
+                      </Link>
+                      <button 
+                        onClick={handleProfileClick}
+                        className="nav-link flex items-center w-full text-left"
+                      >
+                        <FaUser className="mr-2" />
+                        Mon Profil
+                      </button>
+                    </>
+                  )}
+                  {userType !== 'club' && userType !== 'sponsor' && (
+                    <button 
+                      onClick={handleProfileClick}
+                      className="nav-link flex items-center w-full text-left"
+                    >
+                      <FaUser className="mr-2" />
+                      Mon Profil
+                    </button>
+                  )}
                   <Link to="/orders" className="nav-link flex items-center">
                     <FaShoppingCart className="mr-2" />
                     Mes Commandes

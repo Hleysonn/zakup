@@ -121,11 +121,25 @@ const sponsorDashboardRoute = createRoute({
   component: lazyRouteComponent(() => import('./pages/sponsor/Dashboard'))
 });
 
+// Profil du sponsor
+const sponsorProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'sponsor/profile',
+  component: lazyRouteComponent(() => import('./pages/sponsor/SponsorProfile'))
+});
+
 // Dashboard du club
 const clubDashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: 'club/dashboard',
   component: lazyRouteComponent(() => import('./pages/club/Dashboard'))
+});
+
+// Profil du club
+const clubProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'club/profile',
+  component: lazyRouteComponent(() => import('./pages/club/ClubProfile'))
 });
 
 // Routes à propos, termes, etc.
@@ -182,7 +196,9 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   profileRoute,
   sponsorDashboardRoute,
+  sponsorProfileRoute,
   clubDashboardRoute,
+  clubProfileRoute,
   aboutRoute,
   termsRoute,
   privacyRoute,

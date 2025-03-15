@@ -88,8 +88,8 @@ const RegisterForm = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-2xl bg-red-500 rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
+      <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-md">
+        <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900">Créer un compte</h2>
           <p className="mt-2 text-sm text-gray-600">
             Rejoignez notre communauté et profitez de tous nos services
@@ -121,17 +121,17 @@ const RegisterForm = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <input type="hidden" {...register('userType')} value={userType} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Nom
               </label>
               <div className="relative">
-                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaUser className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="text"
                   {...register('nom', { required: 'Le nom est requis' })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Votre nom"
                 />
               </div>
@@ -141,15 +141,15 @@ const RegisterForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Prénom
               </label>
               <div className="relative">
-                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaUser className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="text"
                   {...register('prenom', { required: 'Le prénom est requis' })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Votre prénom"
                 />
               </div>
@@ -159,11 +159,11 @@ const RegisterForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Email
               </label>
               <div className="relative">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaEnvelope className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="email"
                   {...register('email', {
@@ -173,7 +173,7 @@ const RegisterForm = () => {
                       message: 'Adresse email invalide',
                     },
                   })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="votre@email.com"
                 />
               </div>
@@ -183,15 +183,15 @@ const RegisterForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Adresse
               </label>
               <div className="relative">
-                <FaBuilding className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaBuilding className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="text"
                   {...register('adresse', { required: 'L\'adresse est requise' })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Votre adresse complète"
                 />
               </div>
@@ -201,11 +201,11 @@ const RegisterForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Mot de passe
               </label>
               <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaLock className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   {...register('password', {
@@ -215,13 +215,13 @@ const RegisterForm = () => {
                       message: 'Le mot de passe doit contenir au moins 6 caractères',
                     },
                   })}
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
@@ -232,11 +232,11 @@ const RegisterForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Confirmer le mot de passe
               </label>
               <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaLock className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   {...register('confirmPassword', {
@@ -244,13 +244,13 @@ const RegisterForm = () => {
                     validate: value =>
                       value === password || 'Les mots de passe ne correspondent pas',
                   })}
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
                 >
                   {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
@@ -261,11 +261,11 @@ const RegisterForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Téléphone
               </label>
               <div className="relative">
-                <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaPhone className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="tel"
                   {...register('telephone', {
@@ -275,7 +275,7 @@ const RegisterForm = () => {
                       message: 'Numéro de téléphone invalide',
                     },
                   })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Votre numéro"
                 />
               </div>
@@ -286,17 +286,17 @@ const RegisterForm = () => {
 
             {userType === 'sponsor' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Nom de l'entreprise
                 </label>
                 <div className="relative">
-                  <FaBuilding className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FaBuilding className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                   <input
                     type="text"
                     {...register('nomEntreprise', {
                       required: userType === 'sponsor' ? 'Le nom de l\'entreprise est requis' : false,
                     })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nom de l'entreprise"
                   />
                 </div>
@@ -308,17 +308,17 @@ const RegisterForm = () => {
 
             {userType === 'club' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   Nom du club
                 </label>
                 <div className="relative">
-                  <FaBuilding className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FaBuilding className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                   <input
                     type="text"
                     {...register('nomClub', {
                       required: userType === 'club' ? 'Le nom du club est requis' : false,
                     })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nom du club"
                   />
                 </div>
@@ -338,7 +338,7 @@ const RegisterForm = () => {
                   {...register('acceptRGPD', {
                     required: 'Vous devez accepter les conditions générales'
                   })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
               </div>
               <div className="ml-3">
@@ -359,11 +359,11 @@ const RegisterForm = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               {loading ? (
                 <>
-                  <FaSpinner className="animate-spin mr-2" />
+                  <FaSpinner className="mr-2 animate-spin" />
                   Inscription en cours...
                 </>
               ) : (
@@ -373,7 +373,7 @@ const RegisterForm = () => {
           </div>
         </form>
 
-        <p className="mt-8 text-center text-sm text-gray-600">
+        <p className="mt-8 text-sm text-center text-gray-600">
           Déjà inscrit ?{' '}
           <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
             Se connecter

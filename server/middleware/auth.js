@@ -47,17 +47,25 @@ export const protect = asyncHandler(async (req, res, next) => {
         req.user = await Club.findById(decoded.id);
         req.userType = 'club';
         console.log('Type d\'utilisateur défini:', req.userType);
+      } else {
+        // Regular user
+        req.user = await User.findById(decoded.id);
+        req.userType = 'user';
+        console.log('Type d\'utilisateur régulier défini:', req.userType);
       }
     } else {
       // Default to regular user
       req.user = await User.findById(decoded.id);
       req.userType = 'user';
+      console.log('Type d\'utilisateur par défaut:', req.userType);
     }
 
     if (!req.user) {
+      console.error('Utilisateur non trouvé pour ID:', decoded.id);
       return next(new ErrorResponse('Utilisateur non trouvé', 404));
     }
 
+    console.log('Utilisateur authentifié:', req.user._id, 'Type:', req.userType);
     next();
   } catch (err) {
     console.error('Erreur de vérification du token:', err);
@@ -72,6 +80,7 @@ export const authorize = (...roles) => {
     console.log('Type d\'utilisateur actuel:', req.userType);
     
     if (!roles.includes(req.userType)) {
+      console.error(`Accès refusé: ${req.userType} tente d'accéder à une route réservée à ${roles.join(', ')}`);
       return next(
         new ErrorResponse(
           `Le rôle ${req.userType} n'est pas autorisé à accéder à cette route`,

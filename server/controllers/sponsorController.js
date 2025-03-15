@@ -12,10 +12,21 @@ import { v4 as uuidv4 } from 'uuid';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configuration de multer pour le stockage des fichiers
+// Configuration de multer pour le stockage des fichiers produits
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, path.join(__dirname, '../uploads/products'));
+  },
+  filename: function(req, file, cb) {
+    const uniqueSuffix = uuidv4();
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Configuration de multer pour le stockage des logos
+const logoStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads/logos'));
   },
   filename: function(req, file, cb) {
     const uniqueSuffix = uuidv4();
@@ -37,6 +48,14 @@ export const upload = multer({
   fileFilter: fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // Limite à 5MB
+  }
+});
+
+export const logoUpload = multer({
+  storage: logoStorage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 2 * 1024 * 1024 // Limite à 2MB pour les logos
   }
 });
 
@@ -134,10 +153,50 @@ export const getSponsor = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Obtenir le profil du sponsor connecté
+// @route   GET /api/sponsors/profile
+// @access  Private (Sponsor)
+export const getSponsorProfile = asyncHandler(async (req, res, next) => {
+  try {
+    console.log('Début de getSponsorProfile');
+    console.log('User dans la requête:', req.user);
+    
+    if (!req.user || !req.user.id) {
+      console.error('Utilisateur non trouvé dans la requête');
+      return next(new ErrorResponse('Utilisateur non authentifié', 401));
+    }
+
+    console.log('Récupération du profil sponsor pour:', req.user.id);
+    
+    const sponsor = await Sponsor.findById(req.user.id)
+      .select('-password -resetPasswordToken -resetPasswordExpire')
+      .populate('clubsSponsored', 'raisonSociale logo sport');
+
+    console.log('Sponsor trouvé:', sponsor);
+
+    if (!sponsor) {
+      console.error('Sponsor non trouvé dans la base de données');
+      return next(new ErrorResponse('Sponsor non trouvé', 404));
+    }
+
+    console.log('Envoi de la réponse');
+    res.status(200).json({
+      success: true,
+      data: sponsor
+    });
+  } catch (error) {
+    console.error('Erreur dans getSponsorProfile:', error);
+    return next(new ErrorResponse('Erreur lors de la récupération du profil', 500));
+  }
+});
+
 // @desc    Mettre à jour le profil sponsor
 // @route   PUT /api/sponsors/profile
 // @access  Private (Sponsor)
 export const updateSponsorProfile = asyncHandler(async (req, res, next) => {
+  // Log des données reçues
+  console.log('Données reçues pour mise à jour du sponsor:', req.body);
+  
   // Filtrer les champs que le sponsor peut mettre à jour
   const fieldsToUpdate = {
     raisonSociale: req.body.raisonSociale,
@@ -145,29 +204,54 @@ export const updateSponsorProfile = asyncHandler(async (req, res, next) => {
     prenom: req.body.prenom,
     telephone: req.body.telephone,
     adresse: req.body.adresse,
+    ville: req.body.ville,
+    codePostal: req.body.codePostal,
+    numeroTVA: req.body.numeroTVA,
     compteBancaire: req.body.compteBancaire,
     logo: req.body.logo,
-    description: req.body.description
+    description: req.body.description,
+    acceptRGPD: req.body.acceptRGPD
   };
 
-  // Supprimer les champs indéfinis
-  Object.keys(fieldsToUpdate).forEach(
-    key => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
-  );
-
-  const sponsor = await Sponsor.findByIdAndUpdate(
-    req.user.id,
-    fieldsToUpdate,
-    {
-      new: true,
-      runValidators: true
+  // Supprimer les champs indéfinis ou vides pour les champs non obligatoires
+  Object.keys(fieldsToUpdate).forEach(key => {
+    // Pour les champs optionnels, on peut envoyer des chaînes vides
+    const optionalFields = ['compteBancaire', 'description', 'logo'];
+    
+    if (
+      fieldsToUpdate[key] === undefined || 
+      (typeof fieldsToUpdate[key] === 'string' && 
+       fieldsToUpdate[key].trim() === '' && 
+       !optionalFields.includes(key))
+    ) {
+      delete fieldsToUpdate[key];
     }
-  );
-
-  res.status(200).json({
-    success: true,
-    data: sponsor
   });
+  
+  // Log des champs après filtrage
+  console.log('Champs après filtrage:', fieldsToUpdate);
+
+  try {
+    const sponsor = await Sponsor.findByIdAndUpdate(
+      req.user.id,
+      fieldsToUpdate,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    // Log du sponsor après mise à jour
+    console.log('Sponsor après mise à jour:', sponsor);
+
+    res.status(200).json({
+      success: true,
+      data: sponsor
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil sponsor:', error);
+    return next(new ErrorResponse(error.message || 'Erreur lors de la mise à jour du profil', 400));
+  }
 });
 
 // @desc    Sponsoriser un club
@@ -420,4 +504,38 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     success: true,
     data: product
   });
+});
+
+// @desc    Mettre à jour le logo du sponsor
+// @route   POST /api/sponsors/upload-logo
+// @access  Private (Sponsor)
+export const uploadSponsorLogo = asyncHandler(async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return next(new ErrorResponse('Veuillez fournir un fichier', 400));
+    }
+
+    // Récupérer le chemin du fichier
+    const logoPath = `/uploads/logos/${req.file.filename}`;
+
+    // Mettre à jour le sponsor avec le nouveau logo
+    const sponsor = await Sponsor.findByIdAndUpdate(
+      req.user.id,
+      { logo: logoPath },
+      { new: true, runValidators: true }
+    );
+
+    if (!sponsor) {
+      return next(new ErrorResponse('Sponsor non trouvé', 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      logo: logoPath,
+      message: 'Logo mis à jour avec succès'
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'upload du logo:', error);
+    return next(new ErrorResponse('Erreur lors de l\'upload du logo', 500));
+  }
 }); 

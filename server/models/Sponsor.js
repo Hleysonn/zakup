@@ -32,6 +32,14 @@ const sponsorSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Veuillez entrer votre adresse']
   },
+  ville: {
+    type: String,
+    default: ''
+  },
+  codePostal: {
+    type: String,
+    default: ''
+  },
   numeroTVA: {
     type: String,
     required: [true, 'Veuillez entrer votre numéro de TVA']

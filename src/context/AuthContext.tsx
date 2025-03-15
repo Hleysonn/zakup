@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import axios from 'axios';
+import axiosInstance from '../config/axios';
 
 interface User {
   _id: string;
@@ -37,16 +37,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Configurer axios
-  axios.defaults.baseURL = 'http://localhost:5000';
-  axios.defaults.withCredentials = true;
-
   // Vérifier si l'utilisateur est connecté
   useEffect(() => {
     const loadUser = async () => {
       try {
         console.log('Tentative de récupération de l\'utilisateur connecté...');
-        const res = await axios.get('/api/auth/me');
+        const res = await axiosInstance.get('/api/auth/me');
         console.log('Réponse de /api/auth/me:', res.data);
         console.log('Type d\'utilisateur reçu:', res.data.userType);
         
@@ -75,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('Tentative de connexion avec:', { email: data.email, userType: data.userType });
       
-      const res = await axios.post('/api/auth/login', { 
+      const res = await axiosInstance.post('/api/auth/login', { 
         email: data.email, 
         password: data.password, 
         userType: data.userType 
@@ -110,7 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (userData: any) => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/register', userData);
+      const res = await axiosInstance.post('/api/auth/register', userData);
       setUser(res.data.data);
       setUserType('user');
       setError(null);
@@ -126,7 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const registerSponsor = async (sponsorData: any) => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/register-sponsor', sponsorData);
+      const res = await axiosInstance.post('/api/auth/register-sponsor', sponsorData);
       setUser(res.data.data);
       setUserType('sponsor');
       setError(null);
@@ -142,7 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const registerClub = async (clubData: any) => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/register-club', clubData);
+      const res = await axiosInstance.post('/api/auth/register-club', clubData);
       setUser(res.data.data);
       setUserType('club');
       setError(null);
@@ -158,7 +154,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     setLoading(true);
     try {
-      await axios.get('/api/auth/logout');
+      await axiosInstance.get('/api/auth/logout');
       setUser(null);
       setUserType(null);
     } catch (err: any) {

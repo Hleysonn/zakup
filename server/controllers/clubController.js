@@ -12,9 +12,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration de multer pour le stockage des fichiers
-const storage = multer.diskStorage({
+const productStorage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, path.join(__dirname, '../uploads/products'));
+  },
+  filename: function(req, file, cb) {
+    const uniqueSuffix = uuidv4();
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Configuration de multer pour le stockage des logos
+const logoStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads/logos'));
   },
   filename: function(req, file, cb) {
     const uniqueSuffix = uuidv4();
@@ -31,8 +42,18 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-export const upload = multer({
-  storage: storage,
+// Configuration multer pour les produits
+export const productUpload = multer({
+  storage: productStorage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // Limite à 5MB
+  }
+});
+
+// Configuration multer pour les logos
+export const logoUpload = multer({
+  storage: logoStorage,
   fileFilter: fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // Limite à 5MB
@@ -149,6 +170,9 @@ export const getClub = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/clubs/profile
 // @access  Private (Club)
 export const updateClubProfile = asyncHandler(async (req, res, next) => {
+  // Log des données reçues
+  console.log('Données reçues pour mise à jour:', req.body);
+  
   // Filtrer les champs que le club peut mettre à jour
   const fieldsToUpdate = {
     raisonSociale: req.body.raisonSociale,
@@ -156,30 +180,55 @@ export const updateClubProfile = asyncHandler(async (req, res, next) => {
     prenom: req.body.prenom,
     telephone: req.body.telephone,
     adresse: req.body.adresse,
+    ville: req.body.ville,
+    codePostal: req.body.codePostal,
+    numeroTVA: req.body.numeroTVA,
     compteBancaire: req.body.compteBancaire,
     logo: req.body.logo,
     description: req.body.description,
-    sport: req.body.sport
+    sport: req.body.sport,
+    acceptRGPD: req.body.acceptRGPD
   };
 
-  // Supprimer les champs indéfinis
-  Object.keys(fieldsToUpdate).forEach(
-    key => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
-  );
-
-  const club = await Club.findByIdAndUpdate(
-    req.user.id,
-    fieldsToUpdate,
-    {
-      new: true,
-      runValidators: true
+  // Supprimer les champs indéfinis ou vides pour les champs non obligatoires
+  Object.keys(fieldsToUpdate).forEach(key => {
+    // Pour les champs optionnels, on peut envoyer des chaînes vides
+    const optionalFields = ['ville', 'codePostal', 'compteBancaire', 'description', 'sport', 'logo'];
+    
+    if (
+      fieldsToUpdate[key] === undefined || 
+      (typeof fieldsToUpdate[key] === 'string' && 
+       fieldsToUpdate[key].trim() === '' && 
+       !optionalFields.includes(key))
+    ) {
+      delete fieldsToUpdate[key];
     }
-  );
-
-  res.status(200).json({
-    success: true,
-    data: club
   });
+  
+  // Log des champs après filtrage
+  console.log('Champs après filtrage:', fieldsToUpdate);
+
+  try {
+    const club = await Club.findByIdAndUpdate(
+      req.user.id,
+      fieldsToUpdate,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    // Log du club après mise à jour
+    console.log('Club après mise à jour:', club);
+
+    res.status(200).json({
+      success: true,
+      data: club
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error);
+    return next(new ErrorResponse(error.message || 'Erreur lors de la mise à jour du profil', 400));
+  }
 });
 
 // @desc    Obtenir les sponsors d'un club
@@ -390,5 +439,69 @@ export const deleteClubProduct = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: {}
+  });
+});
+
+// @desc    Obtenir le profil du club connecté
+// @route   GET /api/clubs/profile
+// @access  Private (Club)
+export const getClubProfile = asyncHandler(async (req, res, next) => {
+  try {
+    console.log('Début de getClubProfile');
+    console.log('User dans la requête:', req.user);
+    console.log('Type d\'utilisateur:', req.userType);
+    
+    if (!req.user || !req.user.id) {
+      console.error('Utilisateur non trouvé dans la requête');
+      return next(new ErrorResponse('Utilisateur non authentifié', 401));
+    }
+
+    console.log('Récupération du profil club pour:', req.user.id);
+    
+    const club = await Club.findById(req.user.id)
+      .select('-password -resetPasswordToken -resetPasswordExpire');
+
+    console.log('Club trouvé:', club);
+
+    if (!club) {
+      console.error('Club non trouvé dans la base de données');
+      return next(new ErrorResponse('Club non trouvé', 404));
+    }
+
+    console.log('Envoi de la réponse');
+    res.status(200).json({
+      success: true,
+      data: club
+    });
+  } catch (error) {
+    console.error('Erreur dans getClubProfile:', error);
+    return next(new ErrorResponse('Erreur lors de la récupération du profil', 500));
+  }
+});
+
+// @desc    Upload du logo du club
+// @route   POST /api/clubs/upload-logo
+// @access  Private (Club)
+export const uploadClubLogo = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return next(new ErrorResponse('Veuillez télécharger une image', 400));
+  }
+
+  // Créer l'URL du logo
+  const logoUrl = `/uploads/logos/${req.file.filename}`;
+
+  // Mettre à jour le club avec la nouvelle URL du logo
+  const club = await Club.findByIdAndUpdate(
+    req.user.id,
+    { logo: logoUrl },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    logoUrl: logoUrl
   });
 }); 
