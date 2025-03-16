@@ -391,7 +391,7 @@ const SponsorProfile = () => {
                                   <img 
                                     src={club.logo} 
                                     alt={club.raisonSociale} 
-                                    className="w-10 h-10 rounded-full object-cover"
+                                    className="object-cover w-10 h-10 rounded-full"
                                   />
                                 )}
                                 <div>
@@ -415,7 +415,7 @@ const SponsorProfile = () => {
                         <div className="grid grid-cols-1 gap-2">
                           {sponsorData.subscribers.map(subscriber => (
                             <div key={subscriber._id} className="flex items-center p-2 border border-gray-100 rounded-lg">
-                              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary">
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
                                 {subscriber.prenom.charAt(0)}{subscriber.nom.charAt(0)}
                               </div>
                               <div className="ml-3 text-sm">{subscriber.prenom} {subscriber.nom}</div>

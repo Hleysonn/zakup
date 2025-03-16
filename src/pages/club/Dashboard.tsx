@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
-import { FaSpinner, FaExclamationTriangle, FaPlus, FaEdit, FaTrash, FaChartLine, FaUsers, FaBuilding, FaTags, FaHandshake, FaMoneyBillWave, FaBoxOpen, FaBell, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaSpinner, FaExclamationTriangle, FaPlus, FaEdit, FaTrash, FaChartLine, FaUsers, FaBuilding, FaTags, FaHandshake, FaMoneyBillWave, FaBoxOpen, FaBell, FaEnvelope, FaPhone, FaTicketAlt, FaCalendar } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import ProductForm from '../../components/products/ProductForm';
+import axiosInstance from '../../config/axios';
 
 interface Product {
   _id: string;
@@ -47,19 +48,42 @@ interface Subscriber {
   dateAbonnement: string;
 }
 
+interface DashboardStats {
+  totalRevenu: number;
+  totalAbonnes: number;
+  totalProduits: number;
+  totalEvenements: number;
+}
+
+interface Abonne {
+  _id: string;
+  user: {
+    _id: string;
+    nom: string;
+    prenom: string;
+    email: string;
+    avatar?: string;
+  };
+  formule: string;
+  montantMensuel: number;
+  dateDebut: string;
+  dateProchainPaiement: string;
+  actif: boolean;
+}
+
 const ClubDashboard = () => {
   const navigate = useNavigate();
   const { user, userType, loading: authLoading } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [dons, setDons] = useState<SponsorDon[]>([]);
-  const [stats, setStats] = useState<ClubStats | null>(null);
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [subscribersLoading, setSubscribersLoading] = useState(false);
   const [productLoading, setProductLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [abonnes, setAbonnes] = useState<Abonne[]>([]);
+  const [abonnesLoading, setAbonnesLoading] = useState(true);
 
   // Vérifier que l'utilisateur est un club
   useEffect(() => {
@@ -81,27 +105,20 @@ const ClubDashboard = () => {
   const fetchClubData = async () => {
     try {
       setLoading(true);
-      const dashboardRes = await axios.get('/api/clubs/dashboard');
+      const response = await axiosInstance.get('/api/clubs/dashboard');
       
-      if (dashboardRes.data && dashboardRes.data.success) {
-        const dashboardData = dashboardRes.data.data || {};
+      if (response.data && response.data.success) {
+        const dashboardData = response.data.data || {};
         
         // Log complet des données pour analyse
         console.log('Données complètes du dashboard:', dashboardData);
         
-        if (dashboardRes.data.error) {
-          console.warn("Données partielles reçues:", dashboardRes.data.message);
+        if (response.data.error) {
+          console.warn("Données partielles reçues:", response.data.message);
           toast.warning("Certaines données peuvent être incomplètes. L'équipe technique a été informée.");
         }
         
-        setStats({
-          totalProduits: dashboardData.totalProducts || 0,
-          produitsVendus: dashboardData.totalProductsSold || 0,
-          chiffreAffaires: dashboardData.totalRevenue || 0,
-          totalSponsors: dashboardData.totalSponsors || 0,
-          totalDonsRecus: dashboardData.totalDonations || 0,
-          abonnes: dashboardData.totalSubscribers || 0
-        });
+        setStats(dashboardData);
         
         if (dashboardData.products && Array.isArray(dashboardData.products)) {
           const realProducts = dashboardData.products.filter(product => 
@@ -165,34 +182,34 @@ const ClubDashboard = () => {
     }
   };
 
-  // Fonction pour charger les abonnés
-  const fetchSubscribers = async () => {
-    if (activeTab !== 'subscribers') return;
-    
-    try {
-      setSubscribersLoading(true);
-      // Utiliser la nouvelle route API dédiée
-      const response = await axios.get('/api/clubs/subscribers');
-      
-      if (response.data && response.data.success) {
-        // Utiliser les données réelles d'abonnés
-        setSubscribers(response.data.data || []);
-      } else {
-        console.error('Réponse invalide:', response.data);
-        toast.error('Erreur lors du chargement des abonnés');
-      }
-    } catch (err) {
-      console.error('Erreur lors du chargement des abonnés:', err);
-      toast.error('Erreur lors du chargement des abonnés');
-    } finally {
-      setSubscribersLoading(false);
-    }
-  };
-
   // Charger les abonnés lorsque l'onglet change
   useEffect(() => {
     if (activeTab === 'subscribers') {
-      fetchSubscribers();
+      const fetchAbonnes = async () => {
+        try {
+          setAbonnesLoading(true);
+          const response = await axiosInstance.get('/api/clubs/abonnes');
+          
+          if (!response.data.data || !Array.isArray(response.data.data)) {
+            console.error('Format de données incorrect:', response.data);
+            toast.error('Format de données incorrect');
+            setAbonnesLoading(false);
+            return;
+          }
+          
+          console.log(`Nombre d'abonnés reçus: ${response.data.data.length}`);
+          console.log('IDs des abonnés:', response.data.data.map(a => a._id));
+          
+          setAbonnes(response.data.data);
+        } catch (error) {
+          console.error('Erreur lors du chargement des abonnés:', error);
+          toast.error('Impossible de charger la liste des abonnés');
+        } finally {
+          setAbonnesLoading(false);
+        }
+      };
+
+      fetchAbonnes();
     }
   }, [activeTab]);
 
@@ -217,6 +234,23 @@ const ClubDashboard = () => {
   const handleAddProductSuccess = () => {
     setShowAddProductModal(false);
     fetchClubData();
+  };
+
+  // Fonction de débogage pour l'objet user
+  const getUserDebugInfo = (user: any) => {
+    if (!user) return "User est undefined ou null";
+    
+    return Object.keys(user).map(key => {
+      const value = user[key];
+      const valueType = typeof value;
+      const valueDisplay = valueType === 'string' ? 
+        `"${value}"` : 
+        valueType === 'object' && value !== null ?
+          '[Object]' : 
+          String(value);
+          
+      return `${key}: ${valueDisplay} (${valueType})`;
+    }).join(', ');
   };
 
   if (authLoading || loading) {
@@ -260,6 +294,36 @@ const ClubDashboard = () => {
       </div>
     );
   }
+
+  // Formatage des dates
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  // Formatage du niveau de formule pour affichage
+  const getFormuleLabel = (niveau: string) => {
+    switch(niveau) {
+      case 'basic': return 'Basic';
+      case 'premium': return 'Premium';
+      case 'vip': return 'VIP';
+      default: return niveau;
+    }
+  };
+
+  // Obtenir la classe de couleur pour le badge de formule
+  const getFormuleColorClass = (niveau: string) => {
+    switch(niveau) {
+      case 'basic': return 'bg-blue-100 text-blue-800';
+      case 'premium': return 'bg-purple-100 text-purple-800';
+      case 'vip': return 'bg-amber-100 text-amber-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-8 pb-12">
@@ -362,7 +426,7 @@ const ClubDashboard = () => {
                     <p className="text-gray-500">Total des ventes</p>
                   </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-800">{stats?.chiffreAffaires?.toFixed(2) || '0.00'} €</p>
+                <p className="text-3xl font-bold text-gray-800">{stats?.totalRevenu?.toFixed(2) || '0.00'} €</p>
                 <p className="text-teal-600 mt-2 flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-teal-400 mr-2"></span>
                   En croissance
@@ -396,7 +460,7 @@ const ClubDashboard = () => {
                     <p className="text-gray-500">Total des abonnés</p>
                   </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-800">{stats?.abonnes || 0}</p>
+                <p className="text-3xl font-bold text-gray-800">{stats?.totalAbonnes || 0}</p>
                 <button 
                   onClick={() => setActiveTab('subscribers')}
                   className="text-blue-600 mt-2 flex items-center text-sm font-medium hover:underline"
@@ -622,36 +686,43 @@ const ClubDashboard = () => {
 
         {activeTab === 'subscribers' && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-gray-700 py-4 px-6">
+            <div className="bg-gray-700 py-4 px-6 flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">Mes abonnés</h2>
+              <div className="text-sm text-gray-300">
+                {abonnes.length} abonné(s) trouvé(s)
+              </div>
             </div>
             
-            {subscribersLoading ? (
+            {abonnesLoading ? (
               <div className="p-8 text-center">
                 <FaSpinner className="text-gray-300 text-5xl mx-auto mb-3 animate-spin" />
                 <p className="text-gray-500">Chargement des abonnés...</p>
               </div>
-            ) : subscribers.length > 0 ? (
+            ) : abonnes.length > 0 ? (
               <div className="overflow-x-auto p-4">
                 <table className="min-w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Abonné</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Téléphone</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Date d'abonnement</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Forfait</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Montant</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Date d'inscription</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Prochain paiement</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Statut</th>
+                      <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {subscribers.map(subscriber => (
-                      <tr key={subscriber._id} className="hover:bg-gray-50 transition-colors">
+                    {abonnes.map(abonne => (
+                      <tr key={abonne._id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0 mr-3">
-                              {subscriber.avatar ? (
+                              {abonne.user?.avatar ? (
                                 <img 
-                                  src={subscriber.avatar} 
-                                  alt={`${subscriber.prenom} ${subscriber.nom}`}
+                                  src={abonne.user?.avatar} 
+                                  alt={`${abonne.user?.prenom || ''} ${abonne.user?.nom || ''}`}
                                   className="h-10 w-10 rounded-full object-cover"
                                 />
                               ) : (
@@ -662,31 +733,77 @@ const ClubDashboard = () => {
                             </div>
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {subscriber.prenom} {subscriber.nom}
+                                {abonne.user?.prenom || ''} {abonne.user?.nom || ''}
+                                {(!abonne.user?.prenom && !abonne.user?.nom) && (
+                                  <span className="text-red-500">
+                                    Utilisateur inconnu
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <a href={`mailto:${subscriber.email}`} className="text-blue-600 hover:underline flex items-center">
-                            <FaEnvelope className="mr-1" /> {subscriber.email}
-                          </a>
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          {subscriber.telephone ? (
-                            <a href={`tel:${subscriber.telephone}`} className="text-blue-600 hover:underline flex items-center">
-                              <FaPhone className="mr-1" /> {subscriber.telephone}
+                          {abonne.user?.email ? (
+                            <a href={`mailto:${abonne.user.email}`} className="text-blue-600 hover:underline flex items-center">
+                              <FaEnvelope className="mr-1" /> {abonne.user.email}
                             </a>
                           ) : (
-                            <span className="text-gray-500">Non renseigné</span>
+                            <span className="text-gray-500">
+                              <FaEnvelope className="mr-1 inline" /> Email non disponible
+                            </span>
                           )}
                         </td>
+                        <td className="px-4 py-3 text-sm">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getFormuleColorClass(abonne.formule || 'basic')}`}>
+                            {getFormuleLabel(abonne.formule || 'basic')}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-teal-600">
+                          {abonne.montantMensuel ? abonne.montantMensuel.toFixed(2) : '0.00'} €/mois
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          {new Date(subscriber.dateAbonnement).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          {abonne.dateDebut ? formatDate(abonne.dateDebut) : 'N/A'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {abonne.dateProchainPaiement ? formatDate(abonne.dateProchainPaiement) : 'N/A'}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {abonne.actif !== undefined ? (
+                            abonne.actif ? (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Actif
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Inactif
+                              </span>
+                            )
+                          ) : (
+                            <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                              Inconnu
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-center">
+                          <button
+                            onClick={() => {
+                              alert(`
+Détails de l'abonné:
+Nom: ${abonne.user?.prenom || ''} ${abonne.user?.nom || ''}
+Email: ${abonne.user?.email || 'Non disponible'}
+Forfait: ${getFormuleLabel(abonne.formule || 'basic')}
+Montant: ${abonne.montantMensuel ? abonne.montantMensuel.toFixed(2) : '0.00'} €/mois
+Date d'inscription: ${abonne.dateDebut ? formatDate(abonne.dateDebut) : 'N/A'}
+Prochain paiement: ${abonne.dateProchainPaiement ? formatDate(abonne.dateProchainPaiement) : 'N/A'}
+Statut: ${abonne.actif ? 'Actif' : 'Inactif'}
+                              `);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 mx-1"
+                            title="Voir les détails"
+                          >
+                            <FaEdit />
+                          </button>
                         </td>
                       </tr>
                     ))}

@@ -1,6 +1,7 @@
 import Abonnement from '../models/Abonnement.js';
 import User from '../models/User.js';
 import Club from '../models/Club.js';
+import Formule from '../models/Formule.js';
 import ErrorResponse from '../utils/errorResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
@@ -9,61 +10,74 @@ import asyncHandler from '../utils/asyncHandler.js';
 // @access  Private
 export const createAbonnement = asyncHandler(async (req, res, next) => {
   const { clubId, formuleId, montantMensuel } = req.body;
+  
+  console.log('Données reçues:', { clubId, formuleId, montantMensuel, userId: req.user?.id });
 
-  if (!['basic', 'premium', 'vip'].includes(formuleId)) {
-    return next(new ErrorResponse('Formule d\'abonnement invalide', 400));
-  }
-
-  // Vérifier que le club existe
-  const club = await Club.findById(clubId);
-  if (!club) {
-    return next(new ErrorResponse('Club introuvable', 404));
-  }
-
-  // Vérifier si l'utilisateur est déjà abonné à ce club
-  const existingAbonnement = await Abonnement.findOne({
-    user: req.user.id,
-    club: clubId,
-    actif: true
-  });
-
-  if (existingAbonnement) {
-    // Mettre à jour l'abonnement existant avec la nouvelle formule
-    existingAbonnement.formule = formuleId;
-    existingAbonnement.montantMensuel = montantMensuel;
-    existingAbonnement.dateDernierPaiement = Date.now();
+  // Vérifier que la formule existe
+  try {
+    const formule = await Formule.findById(formuleId);
+    console.log('Formule trouvée:', formule);
     
-    const date = new Date();
-    date.setMonth(date.getMonth() + 1);
-    existingAbonnement.dateProchainPaiement = date;
+    if (!formule) {
+      return next(new ErrorResponse('Formule introuvable', 404));
+    }
+
+    // Vérifier que le club existe
+    const club = await Club.findById(clubId);
+    console.log('Club trouvé:', club?.raisonSociale);
     
-    await existingAbonnement.save();
-    
-    return res.status(200).json({
-      success: true,
-      data: existingAbonnement,
-      message: 'Formule d\'abonnement mise à jour'
+    if (!club) {
+      return next(new ErrorResponse('Club introuvable', 404));
+    }
+
+    // Vérifier si l'utilisateur est déjà abonné à ce club
+    const existingAbonnement = await Abonnement.findOne({
+      user: req.user.id,
+      club: clubId,
+      actif: true
     });
+
+    if (existingAbonnement) {
+      // Mettre à jour l'abonnement existant avec la nouvelle formule
+      existingAbonnement.formule = formule.niveau; // Utiliser le niveau de la formule
+      existingAbonnement.montantMensuel = montantMensuel;
+      existingAbonnement.dateDernierPaiement = Date.now();
+      
+      const date = new Date();
+      date.setMonth(date.getMonth() + 1);
+      existingAbonnement.dateProchainPaiement = date;
+      
+      await existingAbonnement.save();
+      
+      return res.status(200).json({
+        success: true,
+        data: existingAbonnement,
+        message: 'Formule d\'abonnement mise à jour'
+      });
+    }
+
+    // Créer l'abonnement
+    const abonnement = await Abonnement.create({
+      user: req.user.id,
+      club: clubId,
+      formule: formule.niveau, // Utiliser le niveau de la formule (basic, premium, vip)
+      montantMensuel
+    });
+
+    // Ajouter le club aux abonnements de l'utilisateur s'il n'y est pas déjà
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $addToSet: { clubsAbonnements: clubId } }
+    );
+
+    res.status(201).json({
+      success: true,
+      data: abonnement
+    });
+  } catch (error) {
+    console.error('Erreur lors de la recherche de la formule:', error);
+    return next(new ErrorResponse(`Erreur: ${error.message}`, 500));
   }
-
-  // Créer l'abonnement
-  const abonnement = await Abonnement.create({
-    user: req.user.id,
-    club: clubId,
-    formule: formuleId,
-    montantMensuel
-  });
-
-  // Ajouter le club aux abonnements de l'utilisateur s'il n'y est pas déjà
-  await User.findByIdAndUpdate(
-    req.user.id,
-    { $addToSet: { clubsAbonnements: clubId } }
-  );
-
-  res.status(201).json({
-    success: true,
-    data: abonnement
-  });
 });
 
 // @desc    Récupérer tous les abonnements

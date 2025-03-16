@@ -18,7 +18,8 @@ import {
   createFormule,
   updateFormule,
   deleteFormule,
-  getClubFormulesPub
+  getClubFormulesPub,
+  getClubAbonnes
 } from '../controllers/clubController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -65,6 +66,10 @@ router.route('/formules/:id')
 // Route pour les formules publiques
 router.route('/:id/formules-publiques')
   .get(getClubFormulesPub);
+
+// Route pour récupérer les abonnés d'un club
+router.route('/abonnes')
+  .get(protect, authorize('club'), getClubAbonnes);
 
 // Routes avec paramètres doivent être placées après les routes spécifiques
 router.route('/:id')

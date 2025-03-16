@@ -76,9 +76,15 @@ const AbonnementClub = () => {
         throw new Error('Formule introuvable');
       }
 
+      console.log('Envoi de la requête avec les données:', {
+        clubId,
+        formuleId,
+        montantMensuel: formule.prix
+      });
+
       const response = await axiosInstance.post('/api/abonnements', {
         clubId,
-        formuleId: formuleId,
+        formuleId,
         montantMensuel: formule.prix
       });
 

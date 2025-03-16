@@ -4,7 +4,7 @@ const Debug = () => {
   const { user, userType, loading } = useAuth();
 
   return (
-    <div className="fixed bottom-2 right-2 bg-black bg-opacity-80 text-white p-2 rounded-lg z-50 max-w-md text-xs">
+    <div className="fixed z-50 max-w-md p-2 text-xs text-white bg-black rounded-lg bottom-2 right-2 bg-opacity-80">
       <div>État connexion: {loading ? 'Chargement...' : user ? 'Connecté' : 'Non connecté'}</div>
       <div>Type: {userType || 'Aucun'}</div>
       <div>User: {user ? JSON.stringify(user) : 'null'}</div>

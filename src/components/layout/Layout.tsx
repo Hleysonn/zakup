@@ -3,7 +3,6 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { Toaster } from 'react-hot-toast';
 import ThemeToggle from '../ThemeToggle';
-import Debug from '../Debug';
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,7 +20,6 @@ const Layout = ({ children }: LayoutProps) => {
       </main>
       <Footer />
       <ThemeToggle />
-      <Debug />
       <Toaster
         position="top-right"
         toastOptions={{

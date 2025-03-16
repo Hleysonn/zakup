@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 const Cart = () => {
-  const { cartItems, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
+  const { items: cartItems, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -37,7 +37,7 @@ const Cart = () => {
     }, 1000);
   };
 
-  if (cartItems.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Votre Panier</h1>

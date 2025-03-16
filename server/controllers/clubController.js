@@ -9,6 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import Formule from '../models/Formule.js';
+import Abonnement from '../models/Abonnement.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,81 +69,81 @@ export const logoUpload = multer({
 export const getClubs = asyncHandler(async (req, res, next) => {
   try {
     console.log('Début de getClubs');
-    let query;
+  let query;
 
-    // Copie des paramètres de requête
-    const reqQuery = { ...req.query };
+  // Copie des paramètres de requête
+  const reqQuery = { ...req.query };
     console.log('Paramètres de requête:', reqQuery);
 
-    // Champs à exclure
-    const removeFields = ['select', 'sort', 'page', 'limit'];
+  // Champs à exclure
+  const removeFields = ['select', 'sort', 'page', 'limit'];
 
-    // Supprimer les champs spéciaux
-    removeFields.forEach(param => delete reqQuery[param]);
+  // Supprimer les champs spéciaux
+  removeFields.forEach(param => delete reqQuery[param]);
 
-    // Créer une chaîne de requête
-    let queryStr = JSON.stringify(reqQuery);
+  // Créer une chaîne de requête
+  let queryStr = JSON.stringify(reqQuery);
     console.log('Chaîne de requête:', queryStr);
 
-    // Créer des opérateurs ($gt, $gte, etc)
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+  // Créer des opérateurs ($gt, $gte, etc)
+  queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-    // Trouver les clubs
-    query = Club.find(JSON.parse(queryStr));
+  // Trouver les clubs
+  query = Club.find(JSON.parse(queryStr));
     console.log('Requête MongoDB:', query.getFilter());
 
-    // Sélectionner des champs
-    if (req.query.select) {
-      const fields = req.query.select.split(',').join(' ');
-      query = query.select(fields);
-    }
+  // Sélectionner des champs
+  if (req.query.select) {
+    const fields = req.query.select.split(',').join(' ');
+    query = query.select(fields);
+  }
 
-    // Trier
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
+  // Trier
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort('-createdAt');
+  }
 
-    // Pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Club.countDocuments(JSON.parse(queryStr));
+  // Pagination
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const total = await Club.countDocuments(JSON.parse(queryStr));
     console.log('Total de clubs trouvés:', total);
 
-    query = query.skip(startIndex).limit(limit);
+  query = query.skip(startIndex).limit(limit);
 
-    // Exécuter la requête
-    const clubs = await query.populate('sponsors', 'raisonSociale logo');
+  // Exécuter la requête
+  const clubs = await query.populate('sponsors', 'raisonSociale logo');
     console.log('Nombre de clubs récupérés:', clubs.length);
 
-    // Pagination result
-    const pagination = {};
+  // Pagination result
+  const pagination = {};
 
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit
-      };
-    }
+  if (endIndex < total) {
+    pagination.next = {
+      page: page + 1,
+      limit
+    };
+  }
 
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit
-      };
-    }
+  if (startIndex > 0) {
+    pagination.prev = {
+      page: page - 1,
+      limit
+    };
+  }
 
     console.log('Envoi de la réponse');
-    res.status(200).json({
-      success: true,
-      count: clubs.length,
-      pagination,
-      data: clubs
-    });
+  res.status(200).json({
+    success: true,
+    count: clubs.length,
+    pagination,
+    data: clubs
+  });
   } catch (error) {
     console.error('Erreur dans getClubs:', error);
     return next(new ErrorResponse('Erreur lors de la récupération des clubs', 500));
@@ -211,22 +212,22 @@ export const updateClubProfile = asyncHandler(async (req, res, next) => {
   console.log('Champs après filtrage:', fieldsToUpdate);
 
   try {
-    const club = await Club.findByIdAndUpdate(
-      req.user.id,
-      fieldsToUpdate,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
+  const club = await Club.findByIdAndUpdate(
+    req.user.id,
+    fieldsToUpdate,
+    {
+      new: true,
+      runValidators: true
+    }
+  );
 
     // Log du club après mise à jour
     console.log('Club après mise à jour:', club);
 
-    res.status(200).json({
-      success: true,
-      data: club
-    });
+  res.status(200).json({
+    success: true,
+    data: club
+  });
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error);
     return next(new ErrorResponse(error.message || 'Erreur lors de la mise à jour du profil', 400));
@@ -253,87 +254,53 @@ export const getClubSponsors = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Obtenir le tableau de bord du club
+// @desc    Obtenir les données du tableau de bord du club
 // @route   GET /api/clubs/dashboard
-// @access  Private (Club)
+// @access  Private (Club only)
 export const getClubDashboard = asyncHandler(async (req, res, next) => {
   try {
-    // Récupérer les produits du club
-    const products = await Product.find({
-      vendeur: req.user.id,
-      vendeurModel: 'Club'
-    });
-
-    // Récupérer les commandes contenant des produits du club
-    const orders = await Order.find({
-      'produits.vendeur': req.user.id,
-      'produits.vendeurModel': 'Club'
-    });
-
-    // Calculer le chiffre d'affaires total
-    let revenue = 0;
-    let productsSold = 0;
-
-    orders.forEach(order => {
-      order.produits.forEach(produit => {
-        if (produit.vendeur.toString() === req.user.id && produit.vendeurModel === 'Club') {
-          revenue += produit.prix * produit.quantite;
-          productsSold += produit.quantite;
-        }
-      });
-    });
-
-    // Récupérer les sponsors et les dons
-    const club = await Club.findById(req.user.id)
-      .populate('sponsors', 'raisonSociale logo');
-
-    // Préparation des dons pour l'affichage
-    const donations = [];
-    let totalDonations = 0;
+    const clubId = req.user.id;
     
-    club.donsSponsors.forEach(don => {
-      totalDonations += don.montant;
-      donations.push({
-        _id: don._id,
-        sponsor: don.sponsor,
-        montant: don.montant,
-        date: don.date
-      });
+    // Récupérer le nombre total d'abonnés
+    const totalAbonnes = await Abonnement.countDocuments({ 
+      club: clubId,
+      actif: true
     });
-
-    // Grouper les dons par sponsor
-    const donationsBySponsors = {};
-    club.donsSponsors.forEach(don => {
-      const sponsorId = don.sponsor.toString();
-      if (!donationsBySponsors[sponsorId]) {
-        donationsBySponsors[sponsorId] = 0;
-      }
-      donationsBySponsors[sponsorId] += don.montant;
+    
+    // Récupérer le montant total des revenus mensuels (abonnements actifs)
+    const abonnements = await Abonnement.find({
+      club: clubId,
+      actif: true
     });
-
-    // Calculer le nombre d'abonnés
-    const subscribers = await Club.findById(req.user.id)
-      .select('subscribers')
-      .populate('subscribers');
-
+    
+    const totalRevenu = abonnements.reduce((total, abonnement) => {
+      return total + abonnement.montantMensuel;
+    }, 0);
+    
+    // Récupérer le nombre total de produits du club
+    const totalProduits = await Product.countDocuments({ club: clubId });
+    
+    // Récupérer les produits récents
+    const products = await Product.find({ club: clubId })
+      .sort({ createdAt: -1 })
+      .limit(5);
+    
+    // Préparer les données pour les événements (à implémenter plus tard)
+    const totalEvenements = 0; // Placeholder pour les événements futurs
+    
     res.status(200).json({
       success: true,
       data: {
-        totalProducts: products.length,
-        totalRevenue: revenue,
-        totalProductsSold: productsSold,
-        totalOrders: orders.length,
-        totalSponsors: club.sponsors.length,
-        totalDonations,
-        donationsBySponsors,
-        totalSubscribers: subscribers.subscribers ? subscribers.subscribers.length : 0,
-        products,
-        donations
+        totalAbonnes,
+        totalRevenu,
+        totalProduits,
+        totalEvenements,
+        products
       }
     });
   } catch (error) {
-    console.error('Erreur dans getClubDashboard:', error);
-    return next(new ErrorResponse('Erreur lors de la récupération des données du tableau de bord', 500));
+    console.error('Erreur lors de la récupération des données de tableau de bord:', error);
+    return next(new ErrorResponse('Erreur lors de la récupération des données', 500));
   }
 });
 
@@ -371,10 +338,10 @@ export const addClubProduct = asyncHandler(async (req, res) => {
 // @route   GET /api/clubs/products
 // @access  Private/Club
 export const getClubProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({
-    vendeur: req.user.id,
-    vendeurModel: 'Club'
-  });
+    const products = await Product.find({
+      vendeur: req.user.id,
+      vendeurModel: 'Club'
+    });
 
   res.status(200).json({
     success: true,
@@ -441,8 +408,8 @@ export const deleteClubProduct = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: {}
-  });
-});
+      });
+    });
 
 // @desc    Obtenir le profil du club connecté
 // @route   GET /api/clubs/profile
@@ -682,5 +649,84 @@ export const getClubFormulesPub = asyncHandler(async (req, res) => {
       message: 'Erreur serveur lors de la récupération des formules',
       error: error.message
     });
+  }
+});
+
+// @desc    Récupérer les abonnés d'un club
+// @route   GET /api/clubs/abonnes
+// @access  Private (Club only)
+export const getClubAbonnes = asyncHandler(async (req, res, next) => {
+  try {
+    // Récupérer l'ID du club connecté
+    const clubId = req.user.id;
+    
+    // Récupérer tous les abonnements actifs pour ce club avec les informations des utilisateurs
+    let abonnements = await Abonnement.find({ 
+      club: clubId 
+    }).populate({
+      path: 'user',
+      select: 'nom prenom email avatar'
+    }).sort({ dateDebut: -1 }); // Tri par date d'inscription (plus récent en premier)
+    
+    // S'assurer que les résultats sont un tableau
+    if (!abonnements) abonnements = [];
+    
+    // Log détaillé pour déboguer
+    console.log(`Abonnements bruts: ${abonnements.length} trouvés pour le club ${clubId}`);
+    console.log(JSON.stringify(abonnements.map(a => ({
+      _id: a._id.toString(),
+      userId: a.user ? a.user._id.toString() : 'non défini',
+      userInfo: a.user ? {
+        nom: a.user.nom || 'non défini',
+        prenom: a.user.prenom || 'non défini',
+        email: a.user.email || 'non défini'
+      } : 'utilisateur non défini',
+      formule: a.formule || 'non définie',
+      montantMensuel: a.montantMensuel || 0
+    })), null, 2));
+    
+    // Filtrer les abonnements pour exclure ceux sans utilisateur
+    const validAbonnements = abonnements.filter(abonnement => abonnement.user);
+    
+    console.log(`Abonnements récupérés: ${abonnements.length}, Abonnements valides: ${validAbonnements.length}`);
+    
+    // Formater les données pour correspondre à la structure attendue par le frontend
+    const formattedAbonnements = validAbonnements.map(abonnement => {
+      // S'assurer que les informations utilisateur sont formatées correctement
+      const userInfo = abonnement.user ? {
+        _id: abonnement.user._id.toString(),
+        nom: abonnement.user.nom || 'Utilisateur',  // Valeur par défaut si vide
+        prenom: abonnement.user.prenom || 'Nom',  // Valeur par défaut si vide
+        email: abonnement.user.email || 'email@example.com',  // Valeur par défaut si vide
+        avatar: abonnement.user.avatar
+      } : null;
+      
+      return {
+        _id: abonnement._id.toString(),
+        user: userInfo,
+        formule: abonnement.formule || 'basic', // La formule est déjà une chaîne
+        montantMensuel: abonnement.montantMensuel || 0,
+        dateDebut: abonnement.dateDebut || new Date().toISOString(),
+        dateProchainPaiement: abonnement.dateProchainPaiement || new Date().toISOString(),
+        actif: typeof abonnement.actif === 'boolean' ? abonnement.actif : true
+      };
+    });
+    
+    // Trier les abonnements par nom/prénom pour faciliter la lecture
+    formattedAbonnements.sort((a, b) => {
+      if (!a.user || !b.user) return 0;
+      const nameA = `${a.user.prenom} ${a.user.nom}`.toLowerCase();
+      const nameB = `${b.user.prenom} ${b.user.nom}`.toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+    
+    res.status(200).json({
+      success: true,
+      count: formattedAbonnements.length,
+      data: formattedAbonnements
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des abonnés:', error);
+    return next(new ErrorResponse('Erreur lors de la récupération des abonnés', 500));
   }
 }); 
