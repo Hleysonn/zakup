@@ -3,10 +3,12 @@ import asyncHandler from '../utils/asyncHandler.js';
 import Club from '../models/Club.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
+import User from '../models/User.js';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
+import Formule from '../models/Formule.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -504,4 +506,181 @@ export const uploadClubLogo = asyncHandler(async (req, res, next) => {
     success: true,
     logoUrl: logoUrl
   });
+});
+
+// @desc    Récupérer la liste des abonnés du club
+// @route   GET /api/clubs/subscribers
+// @access  Private (Club only)
+export const getClubSubscribers = asyncHandler(async (req, res, next) => {
+  const clubId = req.user.id;
+
+  try {
+    // Rechercher les utilisateurs qui ont ce club dans leur liste d'abonnements
+    const subscribers = await User.find({ 
+      clubsAbonnements: clubId 
+    }).select('nom prenom email telephone avatar createdAt');
+
+    // Formater la réponse pour correspondre à l'interface Subscriber
+    const formattedSubscribers = subscribers.map(subscriber => ({
+      _id: subscriber._id,
+      nom: subscriber.nom,
+      prenom: subscriber.prenom,
+      email: subscriber.email,
+      telephone: subscriber.telephone,
+      avatar: subscriber.avatar,
+      dateAbonnement: subscriber.createdAt // Utilise la date de création comme date d'abonnement (temporaire)
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: formattedSubscribers.length,
+      data: formattedSubscribers
+    });
+  } catch (err) {
+    console.error('Erreur lors de la récupération des abonnés:', err);
+    return next(new ErrorResponse('Erreur lors de la récupération des abonnés', 500));
+  }
+});
+
+// @desc    Obtenir les formules d'abonnement du club connecté
+// @route   GET /api/clubs/formules
+// @access  Private (Club)
+export const getClubFormules = asyncHandler(async (req, res) => {
+  // Récupérer l'ID du club connecté depuis le token d'authentification
+  const clubId = req.user.id;
+
+  // Rechercher les formules d'abonnement pour ce club
+  const formules = await Formule.find({ club: clubId });
+
+  res.status(200).json({
+    success: true,
+    data: formules
+  });
+});
+
+// @desc    Créer une formule d'abonnement
+// @route   POST /api/clubs/formules
+// @access  Private (Club)
+export const createFormule = asyncHandler(async (req, res) => {
+  // Ajouter l'ID du club à la formule
+  req.body.club = req.user.id;
+  
+  // Créer la formule
+  const formule = await Formule.create(req.body);
+
+  res.status(201).json({
+    success: true,
+    data: formule
+  });
+});
+
+// @desc    Mettre à jour une formule d'abonnement
+// @route   PUT /api/clubs/formules/:id
+// @access  Private (Club)
+export const updateFormule = asyncHandler(async (req, res) => {
+  let formule = await Formule.findById(req.params.id);
+
+  if (!formule) {
+    return res.status(404).json({
+      success: false,
+      message: 'Formule introuvable'
+    });
+  }
+
+  // Vérifier que le club est propriétaire de la formule
+  if (formule.club.toString() !== req.user.id) {
+    return res.status(403).json({
+      success: false,
+      message: 'Non autorisé à modifier cette formule'
+    });
+  }
+
+  // Mettre à jour la formule
+  formule = await Formule.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
+
+  res.status(200).json({
+    success: true,
+    data: formule
+  });
+});
+
+// @desc    Supprimer une formule d'abonnement
+// @route   DELETE /api/clubs/formules/:id
+// @access  Private (Club)
+export const deleteFormule = asyncHandler(async (req, res) => {
+  const formule = await Formule.findById(req.params.id);
+
+  if (!formule) {
+    return res.status(404).json({
+      success: false,
+      message: 'Formule introuvable'
+    });
+  }
+
+  // Vérifier que le club est propriétaire de la formule
+  if (formule.club.toString() !== req.user.id) {
+    return res.status(403).json({
+      success: false,
+      message: 'Non autorisé à supprimer cette formule'
+    });
+  }
+
+  await formule.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    data: {}
+  });
+});
+
+// @desc    Obtenir les formules d'abonnement publiques d'un club spécifique
+// @route   GET /api/clubs/:id/formules-publiques
+// @access  Public
+export const getClubFormulesPub = asyncHandler(async (req, res) => {
+  try {
+    // Log pour le débogage
+    console.log('Récupération des formules pour le club:', req.params.id);
+    
+    // Récupérer l'ID du club depuis les paramètres de la route
+    const clubId = req.params.id;
+    
+    // Vérifier si le club existe
+    const club = await User.findById(clubId);
+    console.log('Club trouvé:', club ? 'Oui' : 'Non');
+    
+    if (!club) {
+      return res.status(404).json({
+        success: false,
+        message: 'Club introuvable'
+      });
+    }
+    
+    if (club.role !== 'club') {
+      console.log('Rôle du club:', club.role);
+      return res.status(400).json({
+        success: false,
+        message: 'L\'ID fourni ne correspond pas à un club'
+      });
+    }
+
+    // Rechercher les formules d'abonnement pour ce club
+    console.log('Recherche des formules pour le club:', clubId);
+    const formules = await Formule.find({ club: clubId });
+    console.log('Nombre de formules trouvées:', formules.length);
+
+    res.status(200).json({
+      success: true,
+      data: formules
+    });
+  } catch (error) {
+    console.error('Erreur dans getClubFormulesPub:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur lors de la récupération des formules',
+      error: error.message
+    });
+  }
 }); 

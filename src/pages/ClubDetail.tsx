@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from '@tanstack/react-router';
 import axiosInstance from '../config/axios';
-import { FaArrowLeft, FaSpinner, FaExclamationTriangle, FaUsers, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFutbol, FaTrophy, FaBuilding, FaCalendarAlt, FaIdCard } from 'react-icons/fa';
+import { FaArrowLeft, FaSpinner, FaExclamationTriangle, FaUsers, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFutbol, FaTrophy, FaBuilding, FaCalendarAlt, FaIdCard, FaBell, FaCheckCircle } from 'react-icons/fa';
 import ProductList from '../components/products/ProductList';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { useNavigate } from '@tanstack/react-router';
 
 interface Club {
   _id: string;
@@ -27,7 +29,10 @@ const ClubDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'produits' | 'palmares'>('produits');
-  const { user } = useAuth();
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const { user, userType } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClubDetails = async () => {
@@ -46,6 +51,60 @@ const ClubDetail = () => {
 
     fetchClubDetails();
   }, [clubId]);
+
+  // Vérifier si l'utilisateur est déjà abonné
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await axiosInstance.get('/api/users/clubs');
+        const subscribedClubs = response.data.data || [];
+        const subscribed = subscribedClubs.some((c: { _id: string }) => c._id === clubId);
+        setIsSubscribed(subscribed);
+      } catch (err) {
+        console.error('Erreur lors de la vérification de l\'abonnement:', err);
+      }
+    };
+
+    checkSubscription();
+  }, [user, clubId]);
+
+  const handleSubscribe = async () => {
+    if (!user) {
+      toast.error('Vous devez être connecté pour vous abonner');
+      return;
+    }
+
+    // Si l'utilisateur est déjà abonné, on permet de se désabonner directement
+    if (isSubscribed) {
+      try {
+        setIsSubscribing(true);
+        
+        // Désabonnement
+        await axiosInstance.put(`/api/users/unsubscribe-club/${clubId}`);
+        toast.success(`Vous vous êtes désabonné de ${club?.raisonSociale}`);
+        setIsSubscribed(false);
+        
+        // Mettre à jour le nombre d'abonnés
+        if (club && club.nombreAbonnes) {
+          setClub({
+            ...club,
+            nombreAbonnes: club.nombreAbonnes - 1
+          });
+        }
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { error?: string } } };
+        toast.error(error.response?.data?.error || 'Une erreur est survenue');
+        console.error('Erreur lors du désabonnement:', err);
+      } finally {
+        setIsSubscribing(false);
+      }
+    } else {
+      // Si l'utilisateur n'est pas encore abonné, on le redirige vers la page d'abonnement
+      navigate({ to: `/clubs/${clubId}/abonnement` });
+    }
+  };
 
   if (loading) {
     return (
@@ -76,12 +135,37 @@ const ClubDetail = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="text-white bg-gradient-to-r from-gray-700 to-gray-800">
         <div className="container px-4 py-8 mx-auto">
-          <Link
-            to="/clubs"
-            className="inline-flex items-center mb-6 text-gray-300 hover:text-white"
-          >
-            <FaArrowLeft className="mr-2" /> Retour aux clubs
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <Link
+              to="/clubs"
+              className="inline-flex items-center text-gray-300 hover:text-white"
+            >
+              <FaArrowLeft className="mr-2" /> Retour aux clubs
+            </Link>
+            
+            {user && userType === 'user' && (
+              <motion.button
+                onClick={handleSubscribe}
+                disabled={isSubscribing}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-4 py-2 font-semibold rounded-md flex items-center ${
+                  isSubscribed 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : 'bg-primary hover:bg-primary-dark'
+                } transition-all duration-300`}
+              >
+                {isSubscribing ? (
+                  <FaSpinner className="mr-2 animate-spin" />
+                ) : isSubscribed ? (
+                  <FaCheckCircle className="mr-2" />
+                ) : (
+                  <FaBell className="mr-2" />
+                )}
+                {isSubscribed ? 'Abonné' : 'S\'abonner'}
+              </motion.button>
+            )}
+          </div>
 
           <div className="items-center gap-8 md:flex">
             <div className="mb-6 md:mb-0">

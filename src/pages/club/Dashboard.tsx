@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
-import { FaSpinner, FaExclamationTriangle, FaPlus, FaEdit, FaTrash, FaChartLine, FaUsers, FaBuilding, FaTags, FaHandshake, FaMoneyBillWave, FaBoxOpen } from 'react-icons/fa';
+import { FaSpinner, FaExclamationTriangle, FaPlus, FaEdit, FaTrash, FaChartLine, FaUsers, FaBuilding, FaTags, FaHandshake, FaMoneyBillWave, FaBoxOpen, FaBell, FaEnvelope, FaPhone } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import ProductForm from '../../components/products/ProductForm';
@@ -37,13 +37,25 @@ interface ClubStats {
   abonnes: number;
 }
 
+interface Subscriber {
+  _id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone?: string;
+  avatar?: string;
+  dateAbonnement: string;
+}
+
 const ClubDashboard = () => {
   const navigate = useNavigate();
   const { user, userType, loading: authLoading } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [dons, setDons] = useState<SponsorDon[]>([]);
   const [stats, setStats] = useState<ClubStats | null>(null);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const [subscribersLoading, setSubscribersLoading] = useState(false);
   const [productLoading, setProductLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -73,6 +85,9 @@ const ClubDashboard = () => {
       
       if (dashboardRes.data && dashboardRes.data.success) {
         const dashboardData = dashboardRes.data.data || {};
+        
+        // Log complet des données pour analyse
+        console.log('Données complètes du dashboard:', dashboardData);
         
         if (dashboardRes.data.error) {
           console.warn("Données partielles reçues:", dashboardRes.data.message);
@@ -141,7 +156,7 @@ const ClubDashboard = () => {
           setError(`Erreur ${status}: ${message}`);
         }
       } else {
-        setError('Impossible de charger les données du tableau de bord');
+      setError('Impossible de charger les données du tableau de bord');
       }
       
       toast.error('Une erreur est survenue lors du chargement des données');
@@ -149,6 +164,37 @@ const ClubDashboard = () => {
       setLoading(false);
     }
   };
+
+  // Fonction pour charger les abonnés
+  const fetchSubscribers = async () => {
+    if (activeTab !== 'subscribers') return;
+    
+    try {
+      setSubscribersLoading(true);
+      // Utiliser la nouvelle route API dédiée
+      const response = await axios.get('/api/clubs/subscribers');
+      
+      if (response.data && response.data.success) {
+        // Utiliser les données réelles d'abonnés
+        setSubscribers(response.data.data || []);
+      } else {
+        console.error('Réponse invalide:', response.data);
+        toast.error('Erreur lors du chargement des abonnés');
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des abonnés:', err);
+      toast.error('Erreur lors du chargement des abonnés');
+    } finally {
+      setSubscribersLoading(false);
+    }
+  };
+
+  // Charger les abonnés lorsque l'onglet change
+  useEffect(() => {
+    if (activeTab === 'subscribers') {
+      fetchSubscribers();
+    }
+  }, [activeTab]);
 
   const handleDeleteProduct = async (productId: string) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
@@ -222,68 +268,78 @@ const ClubDashboard = () => {
         <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg shadow-md p-6 mb-8 text-white">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Tableau de bord Club</h1>
+        <h1 className="text-3xl font-bold">Tableau de bord Club</h1>
               <p className="text-gray-300 mt-1">Gérez vos produits et suivez vos statistiques</p>
             </div>
-            <button
+        <button
               onClick={() => setShowAddProductModal(true)}
               className="bg-white text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md flex items-center font-medium transition-colors shadow-sm"
-            >
-              <FaPlus className="mr-2" /> Ajouter un produit
-            </button>
+        >
+          <FaPlus className="mr-2" /> Ajouter un produit
+        </button>
           </div>
-        </div>
+      </div>
 
-        {/* Onglets */}
+      {/* Onglets */}
         <div className="bg-white rounded-lg shadow-md mb-8 overflow-hidden">
-          <div className="flex">
-            <button
-              className={`px-6 py-4 font-medium flex items-center flex-1 justify-center transition-colors ${
-                activeTab === 'overview'
+          <div className="flex flex-wrap">
+        <button
+              className={`px-6 py-4 font-medium flex items-center justify-center transition-colors ${
+            activeTab === 'overview'
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
-              }`}
-              onClick={() => setActiveTab('overview')}
-            >
+          }`}
+          onClick={() => setActiveTab('overview')}
+        >
               <FaChartLine className="mr-2" /> Vue d'ensemble
-            </button>
-            <button
-              className={`px-6 py-4 font-medium flex items-center flex-1 justify-center transition-colors ${
-                activeTab === 'products'
+        </button>
+        <button
+              className={`px-6 py-4 font-medium flex items-center justify-center transition-colors ${
+            activeTab === 'products'
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
-              }`}
-              onClick={() => setActiveTab('products')}
-            >
+          }`}
+          onClick={() => setActiveTab('products')}
+        >
               <FaTags className="mr-2" /> Produits
-            </button>
-            <button
-              className={`px-6 py-4 font-medium flex items-center flex-1 justify-center transition-colors ${
-                activeTab === 'sponsors'
+        </button>
+        <button
+              className={`px-6 py-4 font-medium flex items-center justify-center transition-colors ${
+            activeTab === 'sponsors'
                   ? 'bg-gray-700 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
-              }`}
-              onClick={() => setActiveTab('sponsors')}
-            >
+          }`}
+          onClick={() => setActiveTab('sponsors')}
+        >
               <FaHandshake className="mr-2" /> Sponsors
             </button>
+            <button
+              className={`px-6 py-4 font-medium flex items-center justify-center transition-colors ${
+                activeTab === 'subscribers'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveTab('subscribers')}
+            >
+              <FaUsers className="mr-2" /> Abonnés
+        </button>
           </div>
-        </div>
+      </div>
 
-        {/* Contenu */}
-        {activeTab === 'overview' && (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {/* Contenu */}
+      {activeTab === 'overview' && (
+        <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow-md p-6 transform hover:shadow-lg transition-shadow border-l-4 border-indigo-400">
-                <div className="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                   <div className="p-3 bg-indigo-100 rounded-full mr-4">
                     <FaBoxOpen className="text-indigo-600 text-xl" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Produits</h3>
-                    <p className="text-gray-500">Total des produits</p>
-                  </div>
                 </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-800">Produits</h3>
+                  <p className="text-gray-500">Total des produits</p>
+                </div>
+              </div>
                 <p className="text-3xl font-bold text-gray-800">{stats?.totalProduits || 0}</p>
                 <div className="flex items-center mt-2 text-gray-600">
                   <p>{stats?.produitsVendus || 0} vendus</p>
@@ -294,10 +350,10 @@ const ClubDashboard = () => {
                     ></div>
                   </div>
                 </div>
-              </div>
+            </div>
 
               <div className="bg-white rounded-lg shadow-md p-6 transform hover:shadow-lg transition-shadow border-l-4 border-teal-400">
-                <div className="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                   <div className="p-3 bg-teal-100 rounded-full mr-4">
                     <FaMoneyBillWave className="text-teal-600 text-xl" />
                   </div>
@@ -317,8 +373,8 @@ const ClubDashboard = () => {
                 <div className="flex items-center mb-4">
                   <div className="p-3 bg-amber-100 rounded-full mr-4">
                     <FaHandshake className="text-amber-600 text-xl" />
-                  </div>
-                  <div>
+                </div>
+                <div>
                     <h3 className="text-lg font-semibold text-gray-800">Sponsors</h3>
                     <p className="text-gray-500">Sponsors actifs</p>
                   </div>
@@ -328,17 +384,36 @@ const ClubDashboard = () => {
                   <span className="inline-block w-3 h-3 rounded-full bg-amber-400 mr-2"></span>
                   {stats?.totalDonsRecus?.toFixed(2) || '0.00'} € reçus
                 </p>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white rounded-lg shadow-md p-6 transform hover:shadow-lg transition-shadow border-l-4 border-blue-400">
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-blue-100 rounded-full mr-4">
+                  <FaUsers className="text-blue-600 text-xl" />
+                </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-800">Abonnés</h3>
+                    <p className="text-gray-500">Total des abonnés</p>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-800">{stats?.abonnes || 0}</p>
+                <button 
+                  onClick={() => setActiveTab('subscribers')}
+                  className="text-blue-600 mt-2 flex items-center text-sm font-medium hover:underline"
+                >
+                  <FaBell className="mr-1" /> Voir les abonnés
+                </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="bg-gray-700 py-4 px-6">
                   <h2 className="text-xl font-bold text-white">Derniers produits</h2>
                 </div>
-                {products.length > 0 ? (
+              {products.length > 0 ? (
                   <div className="overflow-x-auto p-4">
-                    <table className="min-w-full">
+                  <table className="min-w-full">
                       <thead>
                         <tr className="border-b border-gray-200">
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Produit</th>
@@ -346,55 +421,55 @@ const ClubDashboard = () => {
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Prix</th>
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Stock</th>
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Vendus</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {products.slice(0, 5).map(product => (
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {products.slice(0, 5).map(product => (
                           <tr key={product._id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-3 text-sm font-medium text-gray-800">{product.nom}</td>
                             <td className="px-4 py-3 text-sm">{product.categorie}</td>
                             <td className="px-4 py-3 text-sm text-teal-600 font-medium">{product.prix.toFixed(2)} €</td>
-                            <td className="px-4 py-3 text-sm">{product.stock}</td>
-                            <td className="px-4 py-3 text-sm">{product.vendu}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
+                          <td className="px-4 py-3 text-sm">{product.stock}</td>
+                          <td className="px-4 py-3 text-sm">{product.vendu}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
                   <div className="p-8 text-center">
                     <FaBoxOpen className="text-gray-300 text-5xl mx-auto mb-3" />
                     <p className="text-gray-500">Aucun produit disponible</p>
                   </div>
-                )}
-                {products.length > 5 && (
+              )}
+              {products.length > 5 && (
                   <div className="bg-gray-50 py-3 px-6 text-right">
-                    <button 
-                      onClick={() => setActiveTab('products')}
+                  <button 
+                    onClick={() => setActiveTab('products')}
                       className="text-gray-700 hover:text-gray-900 font-medium hover:underline"
-                    >
+                  >
                       Voir tous les produits →
-                    </button>
-                  </div>
-                )}
-              </div>
+                  </button>
+                </div>
+              )}
+            </div>
 
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="bg-gray-700 py-4 px-6">
                   <h2 className="text-xl font-bold text-white">Derniers dons</h2>
                 </div>
-                {dons.length > 0 ? (
+              {dons.length > 0 ? (
                   <div className="overflow-x-auto p-4">
-                    <table className="min-w-full">
+                  <table className="min-w-full">
                       <thead>
                         <tr className="border-b border-gray-200">
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Sponsor</th>
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Montant</th>
                           <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {dons.slice(0, 5).map(don => (
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {dons.slice(0, 5).map(don => (
                           <tr key={don._id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-3">
                               <div className="flex items-center">
@@ -410,46 +485,46 @@ const ClubDashboard = () => {
                             </td>
                             <td className="px-4 py-3 text-sm text-teal-600 font-medium">{don.montant.toFixed(2)} €</td>
                             <td className="px-4 py-3 text-sm text-gray-500">{new Date(don.date).toLocaleDateString('fr-FR')}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
                   <div className="p-8 text-center">
                     <FaHandshake className="text-gray-300 text-5xl mx-auto mb-3" />
                     <p className="text-gray-500">Aucun don reçu</p>
                   </div>
-                )}
-                {dons.length > 5 && (
+              )}
+              {dons.length > 5 && (
                   <div className="bg-gray-50 py-3 px-6 text-right">
-                    <button 
-                      onClick={() => setActiveTab('sponsors')}
+                  <button 
+                    onClick={() => setActiveTab('sponsors')}
                       className="text-gray-700 hover:text-gray-900 font-medium hover:underline"
-                    >
+                  >
                       Voir tous les dons →
-                    </button>
-                  </div>
-                )}
-              </div>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {activeTab === 'products' && (
+      {activeTab === 'products' && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="bg-gray-700 py-4 px-6 flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">Mes produits</h2>
-              <button
+            <button
                 onClick={() => setShowAddProductModal(true)}
                 className="bg-white text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md flex items-center text-sm font-medium"
-              >
+            >
                 <FaPlus className="mr-2" /> Nouveau produit
-              </button>
-            </div>
-            {products.length > 0 ? (
+            </button>
+          </div>
+          {products.length > 0 ? (
               <div className="overflow-x-auto p-4">
-                <table className="min-w-full">
+              <table className="min-w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Produit</th>
@@ -458,16 +533,16 @@ const ClubDashboard = () => {
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Stock</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Vendus</th>
                       <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {products.map(product => (
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {products.map(product => (
                       <tr key={product._id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3 text-sm font-medium text-gray-800">{product.nom}</td>
-                        <td className="px-4 py-3 text-sm">{product.categorie}</td>
+                      <td className="px-4 py-3 text-sm">{product.categorie}</td>
                         <td className="px-4 py-3 text-sm text-teal-600 font-medium">{product.prix.toFixed(2)} €</td>
-                        <td className="px-4 py-3 text-sm">{product.stock}</td>
-                        <td className="px-4 py-3 text-sm">{product.vendu}</td>
+                      <td className="px-4 py-3 text-sm">{product.stock}</td>
+                      <td className="px-4 py-3 text-sm">{product.vendu}</td>
                         <td className="px-4 py-3 text-right">
                           <button
                             onClick={() => handleDeleteProduct(product._id)}
@@ -476,45 +551,45 @@ const ClubDashboard = () => {
                           >
                             <FaTrash />
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
               <div className="p-8 text-center">
                 <FaBoxOpen className="text-gray-300 text-5xl mx-auto mb-3" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun produit</h3>
-                <p className="text-gray-500 mb-4">Vous n'avez pas encore de produits</p>
-                <button
+              <p className="text-gray-500 mb-4">Vous n'avez pas encore de produits</p>
+              <button
                   onClick={() => setShowAddProductModal(true)}
-                  className="bg-primary text-white px-4 py-2 rounded-md inline-flex items-center"
-                >
+                className="bg-primary text-white px-4 py-2 rounded-md inline-flex items-center"
+              >
                   <FaPlus className="mr-2" /> Ajouter un produit
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
-        {activeTab === 'sponsors' && (
+      {activeTab === 'sponsors' && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="bg-gray-700 py-4 px-6">
               <h2 className="text-xl font-bold text-white">Mes sponsors</h2>
-            </div>
-            {dons.length > 0 ? (
+          </div>
+          {dons.length > 0 ? (
               <div className="overflow-x-auto p-4">
-                <table className="min-w-full">
+              <table className="min-w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Sponsor</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Montant</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {dons.map(don => (
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {dons.map(don => (
                       <tr key={don._id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center">
@@ -527,9 +602,92 @@ const ClubDashboard = () => {
                             )}
                             <span className="text-sm font-medium text-gray-800">{don.sponsor.raisonSociale}</span>
                           </div>
-                        </td>
+                      </td>
                         <td className="px-4 py-3 text-sm text-teal-600 font-medium">{don.montant.toFixed(2)} €</td>
                         <td className="px-4 py-3 text-sm text-gray-500">{new Date(don.date).toLocaleDateString('fr-FR')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+              <div className="p-8 text-center">
+                <FaHandshake className="text-gray-300 text-5xl mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun sponsor</h3>
+                <p className="text-gray-500">Vous n'avez pas encore reçu de dons</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'subscribers' && (
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-gray-700 py-4 px-6">
+              <h2 className="text-xl font-bold text-white">Mes abonnés</h2>
+            </div>
+            
+            {subscribersLoading ? (
+              <div className="p-8 text-center">
+                <FaSpinner className="text-gray-300 text-5xl mx-auto mb-3 animate-spin" />
+                <p className="text-gray-500">Chargement des abonnés...</p>
+              </div>
+            ) : subscribers.length > 0 ? (
+              <div className="overflow-x-auto p-4">
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Abonné</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Téléphone</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Date d'abonnement</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {subscribers.map(subscriber => (
+                      <tr key={subscriber._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 flex-shrink-0 mr-3">
+                              {subscriber.avatar ? (
+                                <img 
+                                  src={subscriber.avatar} 
+                                  alt={`${subscriber.prenom} ${subscriber.nom}`}
+                                  className="h-10 w-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                  <FaUsers className="text-gray-500" />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {subscriber.prenom} {subscriber.nom}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <a href={`mailto:${subscriber.email}`} className="text-blue-600 hover:underline flex items-center">
+                            <FaEnvelope className="mr-1" /> {subscriber.email}
+                          </a>
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {subscriber.telephone ? (
+                            <a href={`tel:${subscriber.telephone}`} className="text-blue-600 hover:underline flex items-center">
+                              <FaPhone className="mr-1" /> {subscriber.telephone}
+                            </a>
+                          ) : (
+                            <span className="text-gray-500">Non renseigné</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {new Date(subscriber.dateAbonnement).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -537,9 +695,9 @@ const ClubDashboard = () => {
               </div>
             ) : (
               <div className="p-8 text-center">
-                <FaHandshake className="text-gray-300 text-5xl mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun sponsor</h3>
-                <p className="text-gray-500">Vous n'avez pas encore reçu de dons</p>
+                <FaUsers className="text-gray-300 text-5xl mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun abonné</h3>
+                <p className="text-gray-500">Votre club n'a pas encore d'abonnés</p>
               </div>
             )}
           </div>
@@ -568,13 +726,13 @@ const ClubDashboard = () => {
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
+              <button
                   type="button"
                   onClick={() => setShowAddProductModal(false)}
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                >
+              >
                   Fermer
-                </button>
+              </button>
               </div>
             </div>
           </div>

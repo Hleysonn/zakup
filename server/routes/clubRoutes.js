@@ -12,7 +12,13 @@ import {
   productUpload,
   logoUpload,
   getClubProfile,
-  uploadClubLogo
+  uploadClubLogo,
+  getClubSubscribers,
+  getClubFormules,
+  createFormule,
+  updateFormule,
+  deleteFormule,
+  getClubFormulesPub
 } from '../controllers/clubController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -23,6 +29,9 @@ router.route('/')
 
 router.route('/dashboard')
   .get(protect, authorize('club'), getClubDashboard);
+
+router.route('/subscribers')
+  .get(protect, authorize('club'), getClubSubscribers);
 
 router.route('/me')
   .get(protect, authorize('club'), getClubProfile)
@@ -44,6 +53,20 @@ router.route('/products/:id')
   .put(protect, authorize('club'), updateClubProduct)
   .delete(protect, authorize('club'), deleteClubProduct);
 
+// Routes pour les formules d'abonnement
+router.route('/formules')
+  .get(protect, authorize('club'), getClubFormules)
+  .post(protect, authorize('club'), createFormule);
+
+router.route('/formules/:id')
+  .put(protect, authorize('club'), updateFormule)
+  .delete(protect, authorize('club'), deleteFormule);
+
+// Route pour les formules publiques
+router.route('/:id/formules-publiques')
+  .get(getClubFormulesPub);
+
+// Routes avec paramètres doivent être placées après les routes spécifiques
 router.route('/:id')
   .get(getClub);
 

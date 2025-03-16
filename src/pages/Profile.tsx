@@ -438,16 +438,16 @@ const Profile = () => {
                       {profileData.nom} {profileData.prenom}
                     </h1>
                     <p className="text-gray-600">{profileData.email}</p>
-                  </div>
-                  
+            </div>
+            
                   <div className="flex items-center gap-2">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setEditMode(!editMode);
-                        setPasswordMode(false);
-                      }}
+                onClick={() => {
+                  setEditMode(!editMode);
+                  setPasswordMode(false);
+                }}
                       className={`flex items-center justify-center p-3 rounded-xl transition-colors ${
                         editMode 
                           ? 'bg-red-100 text-red-600 hover:bg-red-200' 
@@ -460,10 +460,10 @@ const Profile = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setPasswordMode(!passwordMode);
-                        setEditMode(false);
-                      }}
+                onClick={() => {
+                  setPasswordMode(!passwordMode);
+                  setEditMode(false);
+                }}
                       className={`flex items-center justify-center p-3 rounded-xl transition-colors ${
                         passwordMode 
                           ? 'bg-red-100 text-red-600 hover:bg-red-200' 
@@ -476,17 +476,17 @@ const Profile = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => logout()}
+                onClick={() => logout()}
                       className="flex items-center justify-center p-3 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                     >
                       <FaSignOutAlt className="text-xl" />
                     </motion.button>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
-
+        </div>
+        
           {/* Contenu principal */}
           <div className="grid grid-cols-1 gap-8">
             <AnimatePresence mode="wait">
@@ -507,7 +507,7 @@ const Profile = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <form onSubmit={handleSubmit(onSubmitProfile)}>
+              <form onSubmit={handleSubmit(onSubmitProfile)}>
                     <div className="space-y-8">
                       <Card title="Informations personnelles">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -526,7 +526,7 @@ const Profile = () => {
                           <InputField
                             label="Email"
                             name="email"
-                            type="email"
+                    type="email"
                             value={profileData.email}
                             disabled={true}
                             onChange={handleInputChange}
@@ -538,7 +538,7 @@ const Profile = () => {
                             value={profileData.telephone}
                             onChange={handleInputChange}
                           />
-                        </div>
+                </div>
                       </Card>
                       
                       <Card title="Adresse">
@@ -549,8 +549,8 @@ const Profile = () => {
                               name="adresse"
                               value={profileData.adresse}
                               onChange={handleInputChange}
-                            />
-                          </div>
+                  />
+                </div>
                           <InputField
                             label="Ville"
                             name="ville"
@@ -562,35 +562,35 @@ const Profile = () => {
                             name="codePostal"
                             value={profileData.codePostal}
                             onChange={handleInputChange}
-                          />
-                        </div>
+                  />
+                </div>
                       </Card>
-                      
+                
                       <div className="flex justify-end">
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          type="submit"
-                          disabled={loading}
+                  type="submit"
+                  disabled={loading}
                           className="flex items-center justify-center px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
-                        >
-                          {loading ? (
+                >
+                  {loading ? (
                             <>
-                              <FaSpinner className="animate-spin mr-2" />
+                    <FaSpinner className="animate-spin mr-2" />
                               Enregistrement...
                             </>
-                          ) : (
+                  ) : (
                             <>
-                              <FaSave className="mr-2" />
+                    <FaSave className="mr-2" />
                               Enregistrer les modifications
                             </>
-                          )}
+                  )}
                         </motion.button>
                       </div>
                     </div>
-                  </form>
+              </form>
                 </motion.div>
-              ) : passwordMode ? (
+          ) : passwordMode ? (
                 <motion.div
                   key="password-form"
                   initial={{ opacity: 0, y: 20 }}
@@ -604,102 +604,102 @@ const Profile = () => {
                         <label htmlFor="currentPassword" className="block text-gray-700 mb-1 text-sm font-medium">
                           Mot de passe actuel
                         </label>
-                        <div className="relative">
-                          <input
-                            id="currentPassword"
-                            type={showCurrentPassword ? "text" : "password"}
-                            {...registerPassword("currentPassword", { 
-                              required: "Le mot de passe actuel est requis" 
-                            })}
+                  <div className="relative">
+                    <input
+                      id="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      {...registerPassword("currentPassword", { 
+                        required: "Le mot de passe actuel est requis" 
+                      })}
                             className="w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
-                          />
-                          <button
-                            type="button"
+                    />
+                    <button
+                      type="button"
                             className="absolute right-3 top-3 text-gray-500"
-                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          >
-                            {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
-                          </button>
-                        </div>
-                        {passwordErrors.currentPassword && (
-                          <p className="text-red-500 text-sm mt-1">{passwordErrors.currentPassword.message}</p>
-                        )}
-                      </div>
-                      
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  {passwordErrors.currentPassword && (
+                    <p className="text-red-500 text-sm mt-1">{passwordErrors.currentPassword.message}</p>
+                  )}
+                </div>
+                
                       <div>
                         <label htmlFor="newPassword" className="block text-gray-700 mb-1 text-sm font-medium">
                           Nouveau mot de passe
                         </label>
-                        <div className="relative">
-                          <input
-                            id="newPassword"
-                            type={showNewPassword ? "text" : "password"}
-                            {...registerPassword("newPassword", { 
-                              required: "Le nouveau mot de passe est requis",
-                              minLength: {
-                                value: 6,
-                                message: "Le mot de passe doit contenir au moins 6 caractères"
-                              }
-                            })}
+                  <div className="relative">
+                    <input
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      {...registerPassword("newPassword", { 
+                        required: "Le nouveau mot de passe est requis",
+                        minLength: {
+                          value: 6,
+                          message: "Le mot de passe doit contenir au moins 6 caractères"
+                        }
+                      })}
                             className="w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
-                          />
-                          <button
-                            type="button"
+                    />
+                    <button
+                      type="button"
                             className="absolute right-3 top-3 text-gray-500"
-                            onClick={() => setShowNewPassword(!showNewPassword)}
-                          >
-                            {showNewPassword ? <FaEyeSlash /> : <FaEye />}
-                          </button>
-                        </div>
-                        {passwordErrors.newPassword && (
-                          <p className="text-red-500 text-sm mt-1">{passwordErrors.newPassword.message}</p>
-                        )}
-                      </div>
-                      
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  {passwordErrors.newPassword && (
+                    <p className="text-red-500 text-sm mt-1">{passwordErrors.newPassword.message}</p>
+                  )}
+                </div>
+                
                       <div>
                         <label htmlFor="confirmPassword" className="block text-gray-700 mb-1 text-sm font-medium">
                           Confirmer le mot de passe
                         </label>
-                        <input
-                          id="confirmPassword"
-                          type="password"
-                          {...registerPassword("confirmPassword", { 
-                            required: "Veuillez confirmer votre mot de passe",
-                            validate: value => value === newPassword || "Les mots de passe ne correspondent pas"
-                          })}
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    {...registerPassword("confirmPassword", { 
+                      required: "Veuillez confirmer votre mot de passe",
+                      validate: value => value === newPassword || "Les mots de passe ne correspondent pas"
+                    })}
                           className="w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
-                        />
-                        {passwordErrors.confirmPassword && (
-                          <p className="text-red-500 text-sm mt-1">{passwordErrors.confirmPassword.message}</p>
-                        )}
-                      </div>
-                      
+                  />
+                  {passwordErrors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">{passwordErrors.confirmPassword.message}</p>
+                  )}
+                </div>
+                
                       <div className="flex justify-end">
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          type="submit"
-                          disabled={passwordLoading}
+                  type="submit"
+                  disabled={passwordLoading}
                           className="flex items-center justify-center px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
-                        >
-                          {passwordLoading ? (
+                >
+                  {passwordLoading ? (
                             <>
-                              <FaSpinner className="animate-spin mr-2" />
+                    <FaSpinner className="animate-spin mr-2" />
                               Mise à jour...
                             </>
-                          ) : (
+                  ) : (
                             <>
-                              <FaKey className="mr-2" />
+                    <FaKey className="mr-2" />
                               Mettre à jour le mot de passe
                             </>
-                          )}
+                  )}
                         </motion.button>
                       </div>
-                    </form>
+              </form>
                   </Card>
                 </motion.div>
-              ) : (
-                <>
+          ) : (
+            <>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -707,26 +707,26 @@ const Profile = () => {
                   >
                     <Card title="Informations personnelles">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                  <div>
                           <h3 className="text-sm font-medium text-gray-500">Nom</h3>
                           <p className="font-medium text-gray-900">{profileData.nom || 'Non renseigné'}</p>
-                        </div>
-                        
-                        <div>
+                  </div>
+                  
+                  <div>
                           <h3 className="text-sm font-medium text-gray-500">Prénom</h3>
                           <p className="font-medium text-gray-900">{profileData.prenom || 'Non renseigné'}</p>
-                        </div>
-                        
-                        <div>
+                  </div>
+                  
+                  <div>
                           <h3 className="text-sm font-medium text-gray-500">Email</h3>
                           <p className="font-medium text-gray-900">{profileData.email}</p>
-                        </div>
-                        
-                        <div>
+                  </div>
+                  
+                  <div>
                           <h3 className="text-sm font-medium text-gray-500">Téléphone</h3>
                           <p className="font-medium text-gray-900">{profileData.telephone || 'Non renseigné'}</p>
-                        </div>
-                      </div>
+                  </div>
+                </div>
                     </Card>
                     
                     <Card title="Adresse">
@@ -734,8 +734,8 @@ const Profile = () => {
                         <div className="md:col-span-2">
                           <h3 className="text-sm font-medium text-gray-500">Adresse</h3>
                           <p className="font-medium text-gray-900">{profileData.adresse || 'Non renseignée'}</p>
-                        </div>
-                        
+              </div>
+              
                         {profileData.ville && (
                           <div>
                             <h3 className="text-sm font-medium text-gray-500">Ville</h3>
@@ -755,103 +755,103 @@ const Profile = () => {
                     {/* Afficher la section abonnements uniquement pour les utilisateurs standards */}
                     {(!user?.role || user?.role === 'user') && (
                       <Card title="Mes abonnements">
-                        {loadingSubscriptions ? (
+                {loadingSubscriptions ? (
                           <div className="flex justify-center items-center py-8">
                             <FaSpinner className="animate-spin text-3xl text-primary" />
-                          </div>
-                        ) : (
+                  </div>
+                ) : (
                           <div className="space-y-8">
                             <div>
                               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                 <FaBuilding className="mr-2 text-blue-500" /> Sponsors
-                              </h3>
-                              
-                              {subscribedSponsors.length === 0 ? (
-                                <p className="text-gray-500 italic">Vous n'êtes abonné à aucun sponsor</p>
-                              ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                  {subscribedSponsors.map(sponsor => (
+                      </h3>
+                      
+                      {subscribedSponsors.length === 0 ? (
+                        <p className="text-gray-500 italic">Vous n'êtes abonné à aucun sponsor</p>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {subscribedSponsors.map(sponsor => (
                                     <motion.div 
-                                      key={sponsor._id} 
+                              key={sponsor._id} 
                                       className="bg-white/60 backdrop-blur-sm rounded-xl p-4 flex flex-col items-center shadow-sm hover:shadow-md transition-all duration-300"
                                       whileHover={{ scale: 1.02 }}
-                                    >
+                            >
                                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 shadow-sm overflow-hidden">
-                                        {sponsor.logo ? (
-                                          <img
-                                            src={sponsor.logo}
-                                            alt={sponsor.raisonSociale}
+                                {sponsor.logo ? (
+                                  <img
+                                    src={sponsor.logo}
+                                    alt={sponsor.raisonSociale}
                                             className="w-full h-full object-cover"
-                                          />
-                                        ) : (
+                                  />
+                                ) : (
                                           <FaBuilding className="text-gray-400" size={28} />
-                                        )}
-                                      </div>
+                                )}
+                              </div>
                                       <h4 className="font-medium text-center mb-2">{sponsor.raisonSociale}</h4>
                                       <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => unsubscribeFromSponsor(sponsor._id)}
+                                onClick={() => unsubscribeFromSponsor(sponsor._id)}
                                         className="mt-2 text-sm px-3 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-300"
-                                      >
-                                        Se désabonner
+                              >
+                                Se désabonner
                                       </motion.button>
                                     </motion.div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
                               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                 <FaUsers className="mr-2 text-blue-500" /> Clubs
-                              </h3>
-                              
-                              {subscribedClubs.length === 0 ? (
-                                <p className="text-gray-500 italic">Vous n'êtes abonné à aucun club</p>
-                              ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                  {subscribedClubs.map(club => (
+                      </h3>
+                      
+                      {subscribedClubs.length === 0 ? (
+                        <p className="text-gray-500 italic">Vous n'êtes abonné à aucun club</p>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {subscribedClubs.map(club => (
                                     <motion.div 
-                                      key={club._id} 
+                              key={club._id} 
                                       className="bg-white/60 backdrop-blur-sm rounded-xl p-4 flex flex-col items-center shadow-sm hover:shadow-md transition-all duration-300"
                                       whileHover={{ scale: 1.02 }}
-                                    >
+                            >
                                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 shadow-sm overflow-hidden">
-                                        {club.logo ? (
-                                          <img
-                                            src={club.logo}
-                                            alt={club.raisonSociale}
+                                {club.logo ? (
+                                  <img
+                                    src={club.logo}
+                                    alt={club.raisonSociale}
                                             className="w-full h-full object-cover"
-                                          />
-                                        ) : (
+                                  />
+                                ) : (
                                           <FaUsers className="text-gray-400" size={28} />
-                                        )}
-                                      </div>
-                                      <h4 className="font-medium text-center">{club.raisonSociale}</h4>
+                                )}
+                              </div>
+                              <h4 className="font-medium text-center">{club.raisonSociale}</h4>
                                       <div className="text-xs text-gray-600 mb-2">{club.sport}</div>
                                       <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => unsubscribeFromClub(club._id)}
+                                onClick={() => unsubscribeFromClub(club._id)}
                                         className="text-sm px-3 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-300"
-                                      >
-                                        Se désabonner
+                              >
+                                Se désabonner
                                       </motion.button>
                                     </motion.div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                           </div>
                         )}
                       </Card>
                     )}
                   </motion.div>
-                </>
-              )}
+                  </>
+                )}
             </AnimatePresence>
-          </div>
+              </div>
         </div>
       </div>
     </div>

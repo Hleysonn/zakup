@@ -72,6 +72,13 @@ const clubDetailRoute = createRoute({
   component: lazyRouteComponent(() => import('./pages/ClubDetail'))
 });
 
+// Page d'abonnement à un club
+const clubAbonnementRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'clubs/$clubId/abonnement',
+  component: lazyRouteComponent(() => import('./pages/club/AbonnementClub'))
+});
+
 // Page de panier
 const cartRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -189,6 +196,7 @@ const routeTree = rootRoute.addChildren([
   sponsorDetailRoute,
   clubsRoute,
   clubDetailRoute,
+  clubAbonnementRoute,
   cartRoute,
   checkoutRoute,
   orderConfirmationRoute,

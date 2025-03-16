@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 // Configuration de Multer pour l'upload d'images de profil
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../../uploads/users');
+    const uploadDir = path.join(__dirname, '../uploads/users');
     
     // Créer le répertoire s'il n'existe pas
     if (!fs.existsSync(uploadDir)){

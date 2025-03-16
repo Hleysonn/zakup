@@ -11,6 +11,8 @@ import sponsorRoutes from './routes/sponsorRoutes.js';
 import clubRoutes from './routes/clubRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import abonnementRoutes from './routes/abonnementRoutes.js';
+import formuleRoutes from './routes/formuleRoutes.js';
 // import errorHandler from './middleware/error.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -72,6 +74,8 @@ app.use('/api/sponsors', sponsorRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/abonnements', abonnementRoutes);
+app.use('/api/formules', formuleRoutes);
 
 // Simple error handler
 app.use((err, req, res, next) => {
