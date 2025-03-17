@@ -307,8 +307,8 @@ const ClubProfile = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="px-4 py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div className="overflow-hidden rounded-lg shadow-md bg-gradient-to-r from-gray-700 to-gray-8000">
         <div className="border-b border-gray-200">
           <nav className="flex overflow-x-auto">
             <button
@@ -647,7 +647,7 @@ const ClubProfile = () => {
                           onChange={handleInputChange}
                           disabled={!isEditing}
                           rows={3}
-                          className="w-full px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-lg resize-none focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:bg-gray-100 disabled:text-gray-700"
+                          className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-lg resize-none bg-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:bg-gray-100 disabled:text-gray-700"
                           placeholder="Description du club..."
                         />
                       </Card>
@@ -699,12 +699,12 @@ const ClubProfile = () => {
           {/* Contenu des membres */}
           {activeTab === 'members' && (
             <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-6">Membres du club</h2>
+              <h2 className="mb-6 text-xl font-bold text-white">Membres du club</h2>
               {/* Ici le contenu des membres quand il sera disponible */}
-              <div className="bg-white rounded-lg p-8 text-center">
-                <FaUser className="text-gray-300 text-5xl mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Gestion des membres</h3>
-                <p className="text-gray-500 mb-6">Cette section vous permettra de gérer les membres de votre club.</p>
+              <div className="p-8 text-center bg-white rounded-lg">
+                <FaUser className="mx-auto mb-3 text-5xl text-gray-300" />
+                <h3 className="mb-2 text-lg font-medium text-gray-900">Gestion des membres</h3>
+                <p className="mb-6 text-gray-500">Cette section vous permettra de gérer les membres de votre club.</p>
               </div>
             </div>
           )}
@@ -712,26 +712,26 @@ const ClubProfile = () => {
           {/* Contenu des abonnements */}
           {activeTab === 'abonnements' && (
             <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800">Formules d'abonnement</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white">Formules d'abonnement</h2>
                 <button
                   onClick={() => {
                     setCurrentFormula(initialFormulaState);
                     setIsEditingFormula(false);
                     setShowFormulaModal(true);
                   }}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center text-sm font-medium"
+                  className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
                 >
                   <FaPlus className="mr-2" /> Nouvelle formule
                 </button>
               </div>
               
               {formulaLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <FaSpinner className="text-primary text-3xl animate-spin" />
+                <div className="flex items-center justify-center py-12">
+                  <FaSpinner className="text-3xl text-primary animate-spin" />
                 </div>
               ) : formules.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   {formules.map(formula => (
                     <div 
                       key={formula._id}
@@ -740,7 +740,7 @@ const ClubProfile = () => {
                       }`}
                     >
                       {formula.recommande && (
-                        <div className="absolute top-0 right-0 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                        <div className="absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white bg-purple-600 rounded-bl-lg">
                           Recommandé
                         </div>
                       )}
@@ -770,8 +770,8 @@ const ClubProfile = () => {
                             }`} />
                           )}
                         </div>
-                        <h3 className="text-xl font-bold text-center mt-4 text-gray-800">{formula.nom}</h3>
-                        <div className="text-center mt-2">
+                        <h3 className="mt-4 text-xl font-bold text-center text-gray-800">{formula.nom}</h3>
+                        <div className="mt-2 text-center">
                           <span className="text-3xl font-bold text-gray-900">{formula.prix}€</span>
                           <span className="text-gray-500">/mois</span>
                         </div>
@@ -781,7 +781,7 @@ const ClubProfile = () => {
                         <ul className="space-y-3">
                           {formula.avantages.map((avantage, index) => (
                             <li key={index} className="flex items-start">
-                              <FaCheck className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                              <FaCheck className="flex-shrink-0 mt-1 mr-2 text-green-500" />
                               <span className="text-gray-700">{avantage}</span>
                             </li>
                           ))}
@@ -790,13 +790,13 @@ const ClubProfile = () => {
                         <div className="flex justify-end mt-4 space-x-2">
                           <button
                             onClick={() => handleEditFormula(formula)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                            className="p-2 text-blue-600 transition-colors rounded-full hover:bg-blue-50"
                           >
                             <FaEdit />
                           </button>
                           <button
                             onClick={() => formula._id && handleDeleteFormula(formula._id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                            className="p-2 text-red-600 transition-colors rounded-full hover:bg-red-50"
                           >
                             <FaTrash />
                           </button>
@@ -806,17 +806,17 @@ const ClubProfile = () => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-lg p-8 text-center">
-                  <FaBell className="text-gray-300 text-5xl mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune formule d'abonnement</h3>
-                  <p className="text-gray-500 mb-6">Vous n'avez pas encore créé de formules d'abonnement pour votre club.</p>
+                <div className="p-8 text-center bg-white rounded-lg">
+                  <FaBell className="mx-auto mb-3 text-5xl text-gray-300" />
+                  <h3 className="mb-2 text-lg font-medium text-gray-900">Aucune formule d'abonnement</h3>
+                  <p className="mb-6 text-gray-500">Vous n'avez pas encore créé de formules d'abonnement pour votre club.</p>
                   <button
                     onClick={() => {
                       setCurrentFormula(initialFormulaState);
                       setIsEditingFormula(false);
                       setShowFormulaModal(true);
                     }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md inline-flex items-center"
+                    className="inline-flex items-center px-4 py-2 text-white bg-blue-600 rounded-md"
                   >
                     <FaPlus className="mr-2" /> Créer ma première formule
                   </button>
@@ -831,17 +831,17 @@ const ClubProfile = () => {
       {showFormulaModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true"></div>
+            <div className="fixed inset-0 transition-opacity bg-black/50" aria-hidden="true"></div>
             
-            <div className="bg-white rounded-lg max-w-md w-full mx-auto relative z-10 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
+            <div className="relative z-10 w-full max-w-md p-6 mx-auto bg-white rounded-lg">
+              <h3 className="mb-4 text-lg font-bold text-gray-900">
                 {isEditingFormula ? 'Modifier la formule' : 'Nouvelle formule d\'abonnement'}
               </h3>
               
               <form onSubmit={handleFormulaSubmit}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom de la formule</label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Nom de la formule</label>
                     <input
                       type="text"
                       value={currentFormula.nom}
@@ -852,7 +852,7 @@ const ClubProfile = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Prix mensuel (€)</label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Prix mensuel (€)</label>
                     <input
                       type="number"
                       min="0"
@@ -865,7 +865,7 @@ const ClubProfile = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Niveau</label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Niveau</label>
                     <select
                       value={currentFormula.niveau}
                       onChange={(e) => setCurrentFormula({ 
@@ -888,7 +888,7 @@ const ClubProfile = () => {
                       id="recommande"
                       checked={currentFormula.recommande}
                       onChange={(e) => setCurrentFormula({ ...currentFormula, recommande: e.target.checked })}
-                      className="h-4 w-4 text-primary focus:ring-primary rounded"
+                      className="w-4 h-4 rounded text-primary focus:ring-primary"
                     />
                     <label htmlFor="recommande" className="ml-2 text-sm text-gray-700">
                       Recommandé
@@ -896,7 +896,7 @@ const ClubProfile = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Avantages</label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Avantages</label>
                     {currentFormula.avantages.map((avantage, index) => (
                       <div key={index} className="flex mb-2">
                         <input
@@ -916,7 +916,7 @@ const ClubProfile = () => {
                             const newAvantages = currentFormula.avantages.filter((_, i) => i !== index);
                             setCurrentFormula({ ...currentFormula, avantages: newAvantages });
                           }}
-                          className="bg-red-500 text-white px-3 rounded-r-md"
+                          className="px-3 text-white bg-red-500 rounded-r-md"
                         >
                           <FaTrash />
                         </button>
@@ -930,27 +930,27 @@ const ClubProfile = () => {
                           avantages: [...currentFormula.avantages, '']
                         });
                       }}
-                      className="bg-gray-100 text-gray-700 p-2 rounded-md text-sm w-full mt-2 hover:bg-gray-200 transition-colors"
+                      className="w-full p-2 mt-2 text-sm text-gray-700 transition-colors bg-gray-100 rounded-md hover:bg-gray-200"
                     >
                       <FaPlus className="inline mr-2" /> Ajouter un avantage
                     </button>
                   </div>
                 </div>
                 
-                <div className="flex justify-end space-x-3 mt-6">
+                <div className="flex justify-end mt-6 space-x-3">
                   <button
                     type="button"
                     onClick={() => setShowFormulaModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 text-gray-700 transition-colors border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
                     disabled={formulaLoading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700"
                   >
-                    {formulaLoading ? <FaSpinner className="animate-spin mx-auto" /> : isEditingFormula ? 'Mettre à jour' : 'Créer'}
+                    {formulaLoading ? <FaSpinner className="mx-auto animate-spin" /> : isEditingFormula ? 'Mettre à jour' : 'Créer'}
                   </button>
                 </div>
               </form>
@@ -964,8 +964,8 @@ const ClubProfile = () => {
 
 // Composant Card pour unifier l'apparence des sections
 const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="p-6 bg-white border-2 border-gray-300 rounded-xl">
-    <h2 className="pb-2 mb-5 text-lg font-bold text-gray-900 border-b-2 border-gray-200">
+  <div className="p-6 border-2 border-gray-300 bg-slate-700 rounded-xl ">
+    <h2 className="pb-2 mb-5 text-lg font-bold text-white border-b-2 border-gray-200">
       {title}
     </h2>
     {children}
@@ -990,7 +990,7 @@ const InputField: React.FC<InputFieldProps> = ({
       value={value}
       onChange={onChange}
       disabled={disabled}
-      className="w-full px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:bg-gray-100 disabled:text-gray-700"
+      className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-lg bg-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:bg-gray-100 disabled:text-gray-700"
     />
   </div>
 );

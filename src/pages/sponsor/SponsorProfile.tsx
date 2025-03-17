@@ -179,7 +179,7 @@ const SponsorProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-r from-gray-700 to-gray-800">
       <div className="max-w-4xl px-4 py-10 mx-auto">
         <motion.div 
           initial={{ opacity: 0 }}
@@ -248,7 +248,7 @@ const SponsorProfile = () => {
           </div>
 
           {/* Formulaire */}
-          <div className="grid grid-cols-1 gap-8">
+          <div className="grid grid-cols-1 gap-8 ">
             <AnimatePresence>
               {loading ? (
                 <motion.div
@@ -267,7 +267,7 @@ const SponsorProfile = () => {
                 >
                   {/* Informations personnelles */}
                   <Card title="Informations personnelles">
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 ">
                       <InputField
                         label="Nom"
                         name="nom"
@@ -490,8 +490,8 @@ const SponsorProfile = () => {
 
 // Composant Card pour unifier l'apparence des sections
 const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="p-6 bg-white border-2 border-gray-300 rounded-xl">
-    <h2 className="pb-2 mb-5 text-lg font-bold text-gray-900 border-b-2 border-gray-200">
+  <div className="p-6 text-white border-2 border-gray-300 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800">
+    <h2 className="pb-2 mb-5 text-lg font-bold text-white border-b-2 border-gray-200">
       {title}
     </h2>
     {children}
@@ -507,7 +507,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange
 }) => (
   <div className="relative">
-    <label className="block mb-2 text-sm font-bold text-gray-700">
+    <label className="block mb-2 text-sm font-bold text-white">
       {label}
     </label>
     <input
@@ -516,7 +516,7 @@ const InputField: React.FC<InputFieldProps> = ({
       value={value}
       onChange={onChange}
       disabled={disabled}
-      className="w-full px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:bg-gray-100 disabled:text-gray-700"
+      className="w-full px-4 py-3 text-sm border-2 border-gray-300 rounded-lg bg-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none disabled:bg-gray-100 disabled:text-gray-700"
     />
   </div>
 );
