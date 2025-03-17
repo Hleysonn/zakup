@@ -131,7 +131,7 @@ export const Header = () => {
             <div className="z-10 flex items-center space-x-1 sm:space-x-4">
               <button 
                 onClick={toggleCart}
-                className="relative p-2 transition-all duration-200 rounded-full sm:p-3 hover:bg-slate-800"
+                className="relative p-2 transition-all duration-200 rounded-full cart-button sm:p-3 hover:bg-slate-800"
                 aria-label="Voir le panier d'achat"
               >
                 <FaShoppingCart className="text-xl text-white sm:text-2xl" />

@@ -2,6 +2,7 @@ import { FaTrash, FaArrowLeft, FaShoppingCart, FaTimes } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { toast } from 'react-hot-toast';
+import { useRef, useEffect } from 'react';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -11,6 +12,31 @@ interface CartModalProps {
 export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
   const { items: cartItems, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
   const navigate = useNavigate();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Fermer le modal quand le panier est vide
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      onClose();
+    }
+  }, [cartItems.length, onClose]);
+
+  // Gérer le clic en dehors du modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity > 0) {
@@ -26,9 +52,15 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Overlay sombre */}
+      <div className="fixed inset-0 bg-black/50" />
+      
       {/* Modal à droite */}
-      <div className="fixed inset-y-0 right-0 max-w-md w-full bg-slate-800 text-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out pointer-events-auto">
+      <div 
+        ref={modalRef}
+        className="fixed inset-y-0 right-0 max-w-md w-full bg-slate-800 text-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out"
+      >
         {/* Entête */}
         <div className="py-4 px-6 border-b border-slate-700 flex items-center justify-between bg-slate-900">
           <div className="flex items-center">

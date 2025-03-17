@@ -32,6 +32,8 @@ export const ProductCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  
+  const productImageRef = useRef<HTMLImageElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -158,6 +160,7 @@ export const ProductCard = ({
             ) : (
               <>
                 <img
+                  ref={productImageRef}
                   src={getImageUrl()!}
                   alt={nom}
                   className="object-contain w-full h-full transition-transform duration-500 group-hover:scale-110"
@@ -342,4 +345,6 @@ export const ProductCard = ({
       )}
     </>
   );
-}; 
+};
+
+export default ProductCard; 
