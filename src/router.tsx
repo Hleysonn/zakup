@@ -121,6 +121,13 @@ const profileRoute = createRoute({
   component: lazyRouteComponent(() => import('./pages/Profile'))
 });
 
+// Page des commandes
+const ordersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'orders',
+  component: lazyRouteComponent(() => import('./pages/Orders'))
+});
+
 // Dashboard du sponsor
 const sponsorDashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -203,6 +210,7 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
   profileRoute,
+  ordersRoute,
   sponsorDashboardRoute,
   sponsorProfileRoute,
   clubDashboardRoute,

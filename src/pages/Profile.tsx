@@ -1,7 +1,7 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
-import { FaUser, FaSpinner, FaExclamationTriangle, FaEdit, FaKey, FaSave, FaEye, FaEyeSlash, FaBuilding, FaUsers, FaMapMarkerAlt, FaUpload, FaTimes, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaSpinner, FaExclamationTriangle, FaEdit, FaKey, FaSave, FaEye, FaEyeSlash, FaBuilding, FaUsers, FaMapMarkerAlt, FaUpload, FaTimes, FaSignOutAlt, FaHistory, FaBell, FaCog } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import axiosInstance from '../config/axios';
@@ -55,11 +55,11 @@ interface InputFieldProps {
 // Composant réutilisable Card
 const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <motion.div
-    className="p-6 overflow-hidden bg-white/60 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+    className="p-6 overflow-hidden text-white transition-all duration-300 shadow-sm rounded-xl hover:shadow-md bg-gradient-to-r from-gray-700 to-gray-800"
     whileHover={{ scale: 1.005 }}
   >
     <h3 className="flex items-center mb-6 text-lg font-bold">
-      <span className="inline-block w-2 h-6 mr-3 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-sm"></span>
+      <span className="inline-block w-2 h-6 mr-3 rounded-sm bg-gradient-to-b from-blue-500 to-indigo-600"></span>
       {title}
     </h3>
     {children}
@@ -110,6 +110,7 @@ const Profile = () => {
   const [subscribedClubs, setSubscribedClubs] = useState<Club[]>([]);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState<ProfileData>({
     nom: '',
     prenom: '',
@@ -362,22 +363,30 @@ const Profile = () => {
     setShowPassword(!showPassword);
   };
 
+  const tabs = [
+    { id: 'profile', label: 'Profil', icon: <FaUser /> },
+    { id: 'security', label: 'Sécurité', icon: <FaKey /> },
+    { id: 'notifications', label: 'Notifications', icon: <FaBell /> },
+    { id: 'history', label: 'Historique', icon: <FaHistory /> },
+    { id: 'settings', label: 'Paramètres', icon: <FaCog /> }
+  ];
+
   if (authLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <FaSpinner className="animate-spin text-4xl text-primary" />
+        <FaSpinner className="text-4xl animate-spin text-primary" />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <FaExclamationTriangle className="text-red-500 text-5xl mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-red-600 mb-4">
+      <div className="container px-4 py-8 mx-auto text-center">
+        <FaExclamationTriangle className="mx-auto mb-4 text-5xl text-red-500" />
+        <h1 className="mb-4 text-2xl font-bold text-red-600">
           Accès non autorisé
         </h1>
-        <p className="text-gray-600 mb-6">
+        <p className="mb-6 text-gray-600">
           Vous devez être connecté pour accéder à cette page.
         </p>
       </div>
@@ -385,503 +394,403 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-white">Mon Profil</h1>
-      
-      <div className="bg-slate-800 text-white rounded-xl shadow-xl overflow-hidden border border-slate-700">
-        <div className="h-36 bg-gradient-to-r from-primary to-indigo-600 flex flex-col justify-end relative p-6">
-          <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-20"></div>
-          <h1 className="text-3xl font-bold text-white z-10 mb-2">
-            {user?.role === 'sponsor' ? 'Profil Sponsor' : 
-             user?.role === 'club' ? 'Profil Club' : 
-             'Mon Profil'}
-          </h1>
-        </div>
-
-        <div className="p-6 md:p-8">
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <div className="relative shrink-0">
-                <div className="relative w-28 h-28 overflow-hidden bg-slate-700 border-2 border-slate-600 rounded-xl shadow-md transition-all duration-300">
-                  <img
-                    src={profileData.avatar || '/placeholder-avatar.png'}
-                    alt="Avatar"
-                    className="object-cover w-full h-full"
-                  />
-                  
-                  {editMode && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-black/40"></div>
-                      <label 
+    <div className="container px-4 py-8 mx-auto">
+      <div className="max-w-6xl mx-auto">
+        {/* En-tête du profil */}
+        <div className="mb-8 overflow-hidden shadow-xl bg-slate-800 rounded-xl">
+          <div className="relative h-48 text-white bg-gradient-to-r from-gray-700 to-gray-800">
+            <div className="absolute inset-0 bg-pattern opacity-20"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <div className="flex items-end gap-6">
+                <div className="relative">
+                  <div className="w-32 h-32 overflow-hidden bg-white border-4 border-white rounded-full">
+                    {profileData.avatar ? (
+                      <img
+                        src={profileData.avatar}
+                        alt="Avatar"
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                        <FaUser className="text-4xl text-gray-400" />
+                      </div>
+                    )}
+                    {editMode && (
+                      <label
                         htmlFor="avatar-upload"
-                        className="relative cursor-pointer z-10"
+                        className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/60"
                       >
-                        <div className="p-2 bg-white rounded-lg shadow-md transition-transform hover:scale-110">
-                          {avatarLoading ? (
-                            <FaSpinner className="text-xl text-primary animate-spin" />
-                          ) : (
-                            <FaUpload className="text-xl text-primary" />
-                          )}
+                        <div className="p-2 bg-white rounded-lg">
+                          <FaUpload className="text-xl text-primary" />
                         </div>
                       </label>
-                    </div>
-                  )}
-                  
-                  <input
-                    type="file"
-                    id="avatar-upload"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                    disabled={!editMode || avatarLoading}
-                  />
+                    )}
+                    <input
+                      type="file"
+                      id="avatar-upload"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                      disabled={!editMode}
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h1 className="mb-2 text-3xl font-bold text-white">
+                    {profileData.prenom} {profileData.nom}
+                  </h1>
+                  <p className="text-gray-200">{profileData.email}</p>
+                </div>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setEditMode(!editMode);
+                      setPasswordMode(false);
+                    }}
+                    className={`flex items-center justify-center p-3 rounded-xl transition-colors ${
+                      editMode 
+                        ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                        : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                    }`}
+                  >
+                    {editMode ? <FaTimes className="text-xl" /> : <FaEdit className="text-xl" />}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setPasswordMode(!passwordMode);
+                      setEditMode(false);
+                    }}
+                    className={`flex items-center justify-center p-3 rounded-xl transition-colors ${
+                      passwordMode 
+                        ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                        : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                    }`}
+                  >
+                    <FaKey className="text-xl" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => logout()}
+                    className="flex items-center justify-center p-3 text-red-600 transition-colors bg-red-100 rounded-xl hover:bg-red-200"
+                  >
+                    <FaSignOutAlt className="text-xl" />
+                  </motion.button>
                 </div>
               </div>
-              
-              <div className="flex-1">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div className="mb-4 md:mb-0">
-                    <h2 className="text-2xl font-bold text-white">{user?.prenom} {user?.nom}</h2>
-                    <p className="text-gray-300">{user?.email}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setEditMode(!editMode);
-                  setPasswordMode(false);
-                }}
-                      className={`flex items-center justify-center p-3 rounded-xl transition-colors ${
-                        editMode 
-                          ? 'bg-red-100 text-red-600 hover:bg-red-200' 
-                          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                      }`}
-                    >
-                      {editMode ? <FaTimes className="text-xl" /> : <FaEdit className="text-xl" />}
-                    </motion.button>
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setPasswordMode(!passwordMode);
-                  setEditMode(false);
-                }}
-                      className={`flex items-center justify-center p-3 rounded-xl transition-colors ${
-                        passwordMode 
-                          ? 'bg-red-100 text-red-600 hover:bg-red-200' 
-                          : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                      }`}
-                    >
-                      <FaKey className="text-xl" />
-                    </motion.button>
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                onClick={() => logout()}
-                      className="flex items-center justify-center p-3 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                    >
-                      <FaSignOutAlt className="text-xl" />
-                    </motion.button>
-                  </div>
-                </div>
             </div>
           </div>
         </div>
-        
-          {/* Contenu principal */}
-          <div className="grid grid-cols-1 gap-8">
-            <AnimatePresence mode="wait">
-              {loading ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex justify-center py-10"
-                >
-                  <FaSpinner className="w-10 h-10 text-primary animate-spin" />
-                </motion.div>
-              ) : editMode ? (
-                <motion.div
-                  key="edit-form"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-              <form onSubmit={handleSubmit(onSubmitProfile)}>
-                    <div className="space-y-8">
-                      <Card title="Informations personnelles">
-                        <div className="mt-6 space-y-8">
-                          <div>
-                            <h3 className="text-lg font-semibold mb-4 text-primary">Informations personnelles</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <p className="text-gray-400 text-sm">Nom</p>
-                                <p className="font-medium text-white">{profileData.nom || 'Non renseigné'}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Prénom</p>
-                                <p className="font-medium text-white">{profileData.prenom || 'Non renseigné'}</p>
-                              </div>
-                            </div>
-                          </div>
 
-                          <div>
-                            <h3 className="text-lg font-semibold mb-4 text-primary">Coordonnées</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <p className="text-gray-400 text-sm">Email</p>
-                                <p className="font-medium text-white">{profileData.email || 'Non renseigné'}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Téléphone</p>
-                                <p className="font-medium text-white">{profileData.telephone || 'Non renseigné'}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h3 className="text-lg font-semibold mb-4 text-primary">Adresse</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="md:col-span-2">
-                                <p className="text-gray-400 text-sm">Adresse</p>
-                                <p className="font-medium text-white">{profileData.adresse || 'Non renseignée'}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Ville</p>
-                                <p className="font-medium text-white">{profileData.ville || 'Non renseignée'}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Code postal</p>
-                                <p className="font-medium text-white">{profileData.codePostal || 'Non renseigné'}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                      
-                      <Card title="Adresse">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="md:col-span-2">
-                            <InputField
-                              label="Adresse"
-                              name="adresse"
-                              value={profileData.adresse}
-                              onChange={handleInputChange}
-                  theme="dark"
-                            />
-                </div>
-                          <InputField
-                            label="Ville"
-                            name="ville"
-                            value={profileData.ville}
-                            onChange={handleInputChange}
-                            theme="dark"
-                          />
-                          <InputField
-                            label="Code Postal"
-                            name="codePostal"
-                            value={profileData.codePostal}
-                            onChange={handleInputChange}
-                  theme="dark"
-                />
-                </div>
-                      </Card>
-                
-                      <div className="flex justify-end">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={loading}
-                          className="flex items-center justify-center px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  {loading ? (
-                            <>
-                    <FaSpinner className="animate-spin mr-2" />
-                              Enregistrement...
-                            </>
-                  ) : (
-                            <>
-                    <FaSave className="mr-2" />
-                              Enregistrer les modifications
-                            </>
-                  )}
-                        </motion.button>
-                      </div>
-                    </div>
-              </form>
-                </motion.div>
-          ) : passwordMode ? (
-                <motion.div
-                  key="password-form"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Card title="Changer le mot de passe">
-                    <form onSubmit={handleSubmitPassword(onSubmitPassword)} className="space-y-6">
-                      <div>
-                        <label htmlFor="currentPassword" className="block text-gray-700 mb-1 text-sm font-medium">
-                          Mot de passe actuel
-                        </label>
-                  <div className="relative">
-                    <input
-                      id="currentPassword"
-                      type={showPassword ? "text" : "password"}
-                      {...registerPassword("currentPassword", { 
-                        required: "Le mot de passe actuel est requis" 
-                      })}
-                            className="w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
-                    />
-                    <button
-                      type="button"
-                            className="absolute right-3 top-3 text-gray-500"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-                  {passwordErrors.currentPassword && (
-                    <p className="text-red-500 text-sm mt-1">{passwordErrors.currentPassword.message}</p>
-                  )}
-                </div>
-                
-                      <div>
-                        <label htmlFor="newPassword" className="block text-gray-700 mb-1 text-sm font-medium">
-                          Nouveau mot de passe
-                        </label>
-                  <div className="relative">
-                    <input
-                      id="newPassword"
-                      type={showPassword ? "text" : "password"}
-                      {...registerPassword("newPassword", { 
-                        required: "Le nouveau mot de passe est requis",
-                        minLength: {
-                          value: 6,
-                          message: "Le mot de passe doit contenir au moins 6 caractères"
-                        }
-                      })}
-                            className="w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
-                    />
-                    <button
-                      type="button"
-                            className="absolute right-3 top-3 text-gray-500"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-                  {passwordErrors.newPassword && (
-                    <p className="text-red-500 text-sm mt-1">{passwordErrors.newPassword.message}</p>
-                  )}
-                </div>
-                
-                      <div>
-                        <label htmlFor="confirmPassword" className="block text-gray-700 mb-1 text-sm font-medium">
-                          Confirmer le mot de passe
-                        </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    {...registerPassword("confirmPassword", { 
-                      required: "Veuillez confirmer votre mot de passe",
-                      validate: value => value === newPassword || "Les mots de passe ne correspondent pas"
-                    })}
-                          className="w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300"
-                  />
-                  {passwordErrors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">{passwordErrors.confirmPassword.message}</p>
-                  )}
-                </div>
-                
-                      <div className="flex justify-end">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={passwordLoading}
-                          className="flex items-center justify-center px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  {passwordLoading ? (
-                            <>
-                    <FaSpinner className="animate-spin mr-2" />
-                              Mise à jour...
-                            </>
-                  ) : (
-                            <>
-                    <FaKey className="mr-2" />
-                              Mettre à jour le mot de passe
-                            </>
-                  )}
-                        </motion.button>
-                      </div>
-              </form>
-                  </Card>
-                </motion.div>
-          ) : (
-            <>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-8"
-                  >
-                    <Card title="Informations personnelles">
-                      <div className="mt-6 space-y-8">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 text-primary">Informations personnelles</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <p className="text-gray-400 text-sm">Nom</p>
-                              <p className="font-medium text-white">{profileData.nom || 'Non renseigné'}</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-400 text-sm">Prénom</p>
-                              <p className="font-medium text-white">{profileData.prenom || 'Non renseigné'}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 text-primary">Coordonnées</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <p className="text-gray-400 text-sm">Email</p>
-                              <p className="font-medium text-white">{profileData.email || 'Non renseigné'}</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-400 text-sm">Téléphone</p>
-                              <p className="font-medium text-white">{profileData.telephone || 'Non renseigné'}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4 text-primary">Adresse</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="md:col-span-2">
-                              <p className="text-gray-400 text-sm">Adresse</p>
-                              <p className="font-medium text-white">{profileData.adresse || 'Non renseignée'}</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-400 text-sm">Ville</p>
-                              <p className="font-medium text-white">{profileData.ville || 'Non renseignée'}</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-400 text-sm">Code postal</p>
-                              <p className="font-medium text-white">{profileData.codePostal || 'Non renseigné'}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                    
-                    {/* Afficher la section abonnements uniquement pour les utilisateurs standards */}
-                    {(!user?.role || user?.role === 'user') && (
-                      <Card title="Mes abonnements">
-                {loadingSubscriptions ? (
-                          <div className="flex justify-center items-center py-8">
-                            <FaSpinner className="animate-spin text-3xl text-primary" />
-                  </div>
-                ) : (
-                          <div className="space-y-8">
-                            <div>
-                              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                <FaBuilding className="mr-2 text-blue-500" /> Sponsors
-                      </h3>
-                      
-                      {subscribedSponsors.length === 0 ? (
-                        <p className="text-gray-500 italic">Vous n'êtes abonné à aucun sponsor</p>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                          {subscribedSponsors.map(sponsor => (
-                                    <motion.div 
-                              key={sponsor._id} 
-                                      className="bg-white/60 backdrop-blur-sm rounded-xl p-4 flex flex-col items-center shadow-sm hover:shadow-md transition-all duration-300"
-                                      whileHover={{ scale: 1.02 }}
-                            >
-                                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 shadow-sm overflow-hidden">
-                                {sponsor.logo ? (
-                                  <img
-                                    src={sponsor.logo}
-                                    alt={sponsor.raisonSociale}
-                                            className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                          <FaBuilding className="text-gray-400" size={28} />
-                                )}
-                              </div>
-                                      <h4 className="font-medium text-center mb-2">{sponsor.raisonSociale}</h4>
-                                      <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                onClick={() => unsubscribeFromSponsor(sponsor._id)}
-                                        className="mt-2 text-sm px-3 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-300"
-                              >
-                                Se désabonner
-                                      </motion.button>
-                                    </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div>
-                              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                <FaUsers className="mr-2 text-blue-500" /> Clubs
-                      </h3>
-                      
-                      {subscribedClubs.length === 0 ? (
-                        <p className="text-gray-500 italic">Vous n'êtes abonné à aucun club</p>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                          {subscribedClubs.map(club => (
-                                    <motion.div 
-                              key={club._id} 
-                                      className="bg-white/60 backdrop-blur-sm rounded-xl p-4 flex flex-col items-center shadow-sm hover:shadow-md transition-all duration-300"
-                                      whileHover={{ scale: 1.02 }}
-                            >
-                                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 shadow-sm overflow-hidden">
-                                {club.logo ? (
-                                  <img
-                                    src={club.logo}
-                                    alt={club.raisonSociale}
-                                            className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                          <FaUsers className="text-gray-400" size={28} />
-                                )}
-                              </div>
-                              <h4 className="font-medium text-center">{club.raisonSociale}</h4>
-                                      <div className="text-xs text-gray-600 mb-2">{club.sport}</div>
-                                      <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                onClick={() => unsubscribeFromClub(club._id)}
-                                        className="text-sm px-3 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-300"
-                              >
-                                Se désabonner
-                                      </motion.button>
-                                    </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                          </div>
-                        )}
-                      </Card>
-                    )}
-                  </motion.div>
-                  </>
-                )}
-            </AnimatePresence>
-              </div>
+        {/* Onglets */}
+        <div className="mb-8 overflow-hidden shadow-xl bg-slate-800 rounded-xl">
+          <div className="flex overflow-x-auto border-b border-slate-700">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Contenu des onglets */}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex justify-center py-10 "
+            >
+              <FaSpinner className="w-10 h-10 text-primary animate-spin" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === 'profile' && (
+                <div className="space-y-8">
+                  <Card title="Informations personnelles">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <InputField
+                        label="Prénom"
+                        name="prenom"
+                        value={profileData.prenom}
+                        onChange={handleInputChange}
+                        disabled={!editMode}
+                        theme="dark"
+                      />
+                      <InputField
+                        label="Nom"
+                        name="nom"
+                        value={profileData.nom}
+                        onChange={handleInputChange}
+                        disabled={!editMode}
+                        theme="dark"
+                      />
+                    </div>
+                  </Card>
+
+                  <Card title="Coordonnées">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <InputField
+                        label="Email"
+                        name="email"
+                        value={profileData.email}
+                        onChange={handleInputChange}
+                        disabled={!editMode}
+                        theme="dark"
+                      />
+                      <InputField
+                        label="Téléphone"
+                        name="telephone"
+                        value={profileData.telephone}
+                        onChange={handleInputChange}
+                        disabled={!editMode}
+                        theme="dark"
+                      />
+                    </div>
+                  </Card>
+
+                  <Card title="Adresse">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <div className="md:col-span-2">
+                        <InputField
+                          label="Adresse"
+                          name="adresse"
+                          value={profileData.adresse}
+                          onChange={handleInputChange}
+                          disabled={!editMode}
+                          theme="dark"
+                        />
+                      </div>
+                      <InputField
+                        label="Ville"
+                        name="ville"
+                        value={profileData.ville}
+                        onChange={handleInputChange}
+                        disabled={!editMode}
+                        theme="dark"
+                      />
+                      <InputField
+                        label="Code Postal"
+                        name="codePostal"
+                        value={profileData.codePostal}
+                        onChange={handleInputChange}
+                        disabled={!editMode}
+                        theme="dark"
+                      />
+                    </div>
+                  </Card>
+
+                  {editMode && (
+                    <div className="flex justify-end">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        onClick={handleSubmit(onSubmitProfile)}
+                        disabled={loading}
+                        className="flex items-center justify-center px-6 py-3 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl hover:shadow-lg"
+                      >
+                        {loading ? (
+                          <>
+                            <FaSpinner className="mr-2 animate-spin" />
+                            Enregistrement...
+                          </>
+                        ) : (
+                          <>
+                            <FaSave className="mr-2" />
+                            Enregistrer les modifications
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'security' && (
+                <Card title="Changer le mot de passe">
+                  <form onSubmit={handleSubmitPassword(onSubmitPassword)} className="space-y-6">
+                    <div>
+                      <label htmlFor="currentPassword" className="block mb-1 text-sm font-medium text-gray-300">
+                        Mot de passe actuel
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="currentPassword"
+                          type={showCurrentPassword ? "text" : "password"}
+                          {...registerPassword("currentPassword", { 
+                            required: "Le mot de passe actuel est requis" 
+                          })}
+                          className="w-full p-3 text-white transition-all duration-300 border rounded-lg bg-slate-700 border-slate-600 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          className="absolute text-gray-400 right-3 top-3"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        >
+                          {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                      {passwordErrors.currentPassword && (
+                        <p className="mt-1 text-sm text-red-500">{passwordErrors.currentPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="newPassword" className="block mb-1 text-sm font-medium text-gray-300">
+                        Nouveau mot de passe
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          {...registerPassword("newPassword", { 
+                            required: "Le nouveau mot de passe est requis",
+                            minLength: {
+                              value: 6,
+                              message: "Le mot de passe doit contenir au moins 6 caractères"
+                            }
+                          })}
+                          className="w-full p-3 text-white transition-all duration-300 border rounded-lg bg-slate-700 border-slate-600 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          className="absolute text-gray-400 right-3 top-3"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                      {passwordErrors.newPassword && (
+                        <p className="mt-1 text-sm text-red-500">{passwordErrors.newPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="confirmPassword" className="block mb-1 text-sm font-medium text-gray-300">
+                        Confirmer le nouveau mot de passe
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="confirmPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          {...registerPassword("confirmPassword", { 
+                            required: "La confirmation du mot de passe est requise",
+                            validate: value => value === newPassword || "Les mots de passe ne correspondent pas"
+                          })}
+                          className="w-full p-3 text-white transition-all duration-300 border rounded-lg bg-slate-700 border-slate-600 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      {passwordErrors.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-500">{passwordErrors.confirmPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={passwordLoading}
+                        className="flex items-center justify-center px-6 py-3 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl hover:shadow-lg"
+                      >
+                        {passwordLoading ? (
+                          <>
+                            <FaSpinner className="mr-2 animate-spin" />
+                            Mise à jour...
+                          </>
+                        ) : (
+                          <>
+                            <FaKey className="mr-2" />
+                            Mettre à jour le mot de passe
+                          </>
+                        )}
+                      </motion.button>
+                    </div>
+                  </form>
+                </Card>
+              )}
+
+              {activeTab === 'notifications' && (
+                <Card title="Préférences de notifications">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-slate-700">
+                      <div>
+                        <h3 className="text-lg font-medium text-white">Newsletter</h3>
+                        <p className="text-gray-400">Recevoir des actualités et des offres</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="acceptNewsletter"
+                          checked={profileData.acceptNewsletter}
+                          onChange={handleInputChange}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-slate-700">
+                      <div>
+                        <h3 className="text-lg font-medium text-white">Notifications SMS</h3>
+                        <p className="text-gray-400">Recevoir des notifications par SMS</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="acceptSMS"
+                          checked={profileData.acceptSMS}
+                          onChange={handleInputChange}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      </label>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {activeTab === 'history' && (
+                <Card title="Historique des commandes">
+                  <div className="py-8 text-center text-gray-400">
+                    <FaHistory className="mx-auto mb-4 text-4xl" />
+                    <p>Cette fonctionnalité sera bientôt disponible</p>
+                  </div>
+                </Card>
+              )}
+
+              {activeTab === 'settings' && (
+                <Card title="Paramètres du compte">
+                  <div className="py-8 text-center text-gray-400">
+                    <FaCog className="mx-auto mb-4 text-4xl" />
+                    <p>Cette fonctionnalité sera bientôt disponible</p>
+                  </div>
+                </Card>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -12,8 +12,9 @@ interface ProductCardProps {
   images: string[];
   notesMoyenne: number;
   vendeur?: {
-    _id?: string;
-    nom: string;
+    _id: string;
+    nom?: string;
+    raisonSociale?: string;
     type: 'sponsor' | 'club';
   };
 }
@@ -46,7 +47,7 @@ export const ProductCard = ({
       prix,
       quantite: 1,
       image: images?.[0] || '',
-      vendeur: vendeur || { nom: 'Inconnu', type: 'sponsor', _id: 'unknown' },
+      vendeur: vendeur || { _id: 'unknown', nom: 'Inconnu', raisonSociale: undefined },
       vendeurModel: vendeur?.type === 'sponsor' ? 'Sponsor' : 'Club'
     });
     
@@ -242,7 +243,7 @@ export const ProductCard = ({
           <p className="text-base text-gray-600 line-clamp-2 min-h-[3rem] mb-3">{description}</p>
           
           <div className="mt-auto mb-2 text-base font-medium text-gray-600">
-            <span>{vendeur?.nom || 'Inconnu'}</span>
+            <span>{vendeur?.raisonSociale || vendeur?.nom || 'Inconnu'}</span>
           </div>
         </div>
         
