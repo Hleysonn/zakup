@@ -93,23 +93,23 @@ export const Header = () => {
         <div className="container px-4 mx-auto">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 z-10">
-              <span className="text-xl sm:text-2xl font-bold font-display text-primary">ZakUp</span>
+            <Link to="/" className="z-10 flex items-center space-x-2">
+              <span className="text-xl font-bold sm:text-2xl font-display text-primary">ZakUp</span>
             </Link>
 
             {/* Search Bar - visible on medium screens and up */}
-            <form onSubmit={handleSearch} className="flex-1 hidden max-w-md mx-4 lg:max-w-xl lg:mx-8 md:flex">
+            {/* <form onSubmit={handleSearch} className="flex-1 hidden max-w-md mx-4 lg:max-w-xl lg:mx-8 md:flex">
               <div className="relative w-full">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Rechercher des produits..."
-                  className="w-full pl-10 py-2 bg-slate-800 border border-slate-700 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full py-2 pl-10 text-white border rounded-full bg-slate-800 border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
               </div>
-            </form>
+            </form> */}
 
             {/* Navigation - visible on medium screens and up */}
             <nav className="items-center hidden space-x-3 lg:space-x-6 md:flex">
@@ -128,15 +128,15 @@ export const Header = () => {
             </nav>
 
             {/* User Actions */}
-            <div className="flex items-center space-x-1 sm:space-x-4 z-10">
+            <div className="z-10 flex items-center space-x-1 sm:space-x-4">
               <button 
                 onClick={toggleCart}
-                className="relative p-2 sm:p-3 hover:bg-slate-800 rounded-full transition-all duration-200"
+                className="relative p-2 transition-all duration-200 rounded-full sm:p-3 hover:bg-slate-800"
                 aria-label="Voir le panier d'achat"
               >
-                <FaShoppingCart className="text-xl sm:text-2xl text-white" />
+                <FaShoppingCart className="text-xl text-white sm:text-2xl" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 sm:w-7 sm:h-7 text-xs font-bold text-white bg-red-600 rounded-full shadow-lg border-2 border-slate-900">
+                  <span className="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 border-2 rounded-full shadow-lg -top-1 -right-1 sm:w-7 sm:h-7 border-slate-900">
                     {cartItemCount > 99 ? '99+' : cartItemCount}
                   </span>
                 )}
@@ -146,14 +146,14 @@ export const Header = () => {
                 <div className="relative user-menu-container">
                   <button 
                     onClick={toggleUserMenu}
-                    className="flex items-center space-x-1 sm:space-x-2 text-gray-200 transition-colors hover:text-primary"
+                    className="flex items-center space-x-1 text-gray-200 transition-colors sm:space-x-2 hover:text-primary"
                   >
                     <FaUserCircle className="text-lg sm:text-xl" />
                     <span className="hidden md:inline">{user.nom}</span>
                     <FaChevronDown className="text-xs" />
                   </button>
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 z-50 w-48 py-1 mt-2 bg-slate-800 border border-slate-700 rounded-md shadow-lg">
+                    <div className="absolute right-0 z-50 w-48 py-1 mt-2 border rounded-md shadow-lg bg-slate-800 border-slate-700">
                       {userType === 'club' && (
                         <>
                           <Link to="/club/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-primary">
@@ -210,10 +210,10 @@ export const Header = () => {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2 sm:space-x-4">
-                  <Link to="/login" className="text-sm sm:text-base text-gray-200 transition-colors hover:text-primary">
+                  <Link to="/login" className="text-sm text-gray-200 transition-colors sm:text-base hover:text-primary">
                     Se connecter
                   </Link>
-                  <Link to="/register" className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-white transition-colors rounded-md bg-primary hover:bg-primary/90">
+                  <Link to="/register" className="px-3 py-1 text-sm text-white transition-colors rounded-md sm:px-4 sm:py-2 sm:text-base bg-primary hover:bg-primary/90">
                     S'inscrire
                   </Link>
                 </div>
@@ -239,7 +239,7 @@ export const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Rechercher des produits..."
-                  className="w-full pl-10 py-2 bg-slate-800 border border-slate-700 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full py-2 pl-10 text-white border rounded-full bg-slate-800 border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
               </form>

@@ -10,20 +10,12 @@ interface Product {
   description: string;
   images: string[];
   notesMoyenne: number;
+  categorie?: string;
   vendeur: {
+    _id: string;
     nom: string;
     type: 'sponsor' | 'club';
   };
-}
-
-// Interface pour les données brutes reçues de l'API
-interface RawProductData extends Partial<Product> {
-  vendeurModel?: string;
-  categorie?: string;
-  stock?: number;
-  estVisible?: boolean;
-  notes?: unknown[];
-  createdAt?: string;
 }
 
 interface ProductListProps {
@@ -43,55 +35,47 @@ const ProductList = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Charger tous les produits une seule fois
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        let url = '/api/products';
-        const params = new URLSearchParams();
+        // Récupérer tous les produits 
+        const response = await axiosInstance.get('/api/products');
         
-        if (sponsorId) params.append('sponsorId', sponsorId);
-        if (clubId) params.append('clubId', clubId);
-        if (category) params.append('category', category);
-        if (searchTerm) params.append('search', searchTerm);
-        
-        if (params.toString()) {
-          url += `?${params.toString()}`;
-        }
-        
-        const response = await axiosInstance.get(url);
+        // Extraire les données en fonction de la structure de la réponse
         let productsData = [];
-        
         if (Array.isArray(response.data)) {
           productsData = response.data;
-        } else if (response.data && response.data.products && Array.isArray(response.data.products)) {
-          productsData = response.data.products;
-        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        } else if (response.data?.data && Array.isArray(response.data.data)) {
           productsData = response.data.data;
+        } else if (response.data?.products && Array.isArray(response.data.products)) {
+          productsData = response.data.products;
         } else {
           setError("Format de données non reconnu");
           return;
         }
         
-        const validProducts = productsData
-          .filter((p: RawProductData) => p && p._id && typeof p._id === 'string')
-          .map((p: RawProductData) => {
-            const baseUrl = import.meta.env.VITE_API_URL || '';
-            return {
-              ...p,
-              description: p.description || 'Aucune description disponible',
-              prix: p.prix || 0,
-              notesMoyenne: p.notesMoyenne || 0,
-              vendeur: processVendeur(p.vendeur, p.vendeurModel),
-              images: processImages(p.images, baseUrl)
-            } as Product;
-          });
+        // Normaliser les données
+        const normalizedProducts = productsData.map((p: any) => ({
+          _id: p._id || 'unknown',
+          nom: p.nom || 'Produit sans nom',
+          prix: p.prix || 0,
+          description: p.description || 'Aucune description disponible',
+          images: p.images || ['/placeholder.png'],
+          notesMoyenne: p.notesMoyenne || 0,
+          categorie: p.categorie || '',
+          vendeur: {
+            _id: p.vendeur?._id || 'unknown',
+            nom: p.vendeur?.nom || (p.vendeurModel || 'Vendeur'),
+            type: p.vendeur?.type || (p.vendeurModel?.toLowerCase() === 'club' ? 'club' : 'sponsor')
+          }
+        }));
         
-        setProducts(validProducts);
+        setProducts(normalizedProducts);
       } catch (err) {
-        console.error("Erreur:", err);
         setError("Impossible de charger les produits");
       } finally {
         setLoading(false);
@@ -99,118 +83,82 @@ const ProductList = ({
     };
     
     loadProducts();
-  }, [sponsorId, clubId, category, searchTerm]);
+  }, []); // Charger les produits une seule fois
 
-  // Fonction pour traiter le vendeur
-  const processVendeur = (
-    vendeur: unknown, 
-    vendeurModel: string | undefined
-  ): Product['vendeur'] => {
-    if (vendeur && 
-        typeof vendeur === 'object' && 
-        'nom' in vendeur && 
-        'type' in vendeur && 
-        typeof vendeur.nom === 'string' && 
-        (vendeur.type === 'sponsor' || vendeur.type === 'club')) {
-      // Le vendeur est déjà au bon format
-      return vendeur as Product['vendeur'];
+  // Filtrer les produits en fonction des critères
+  const filteredProducts = products.filter(product => {
+    // Filtrer par recherche (nom ou description)
+    if (searchTerm?.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      const searchMatch = 
+        product.nom.toLowerCase().includes(term) ||
+        product.description.toLowerCase().includes(term) ||
+        product.vendeur.nom.toLowerCase().includes(term);
+      
+      if (!searchMatch) return false;
     }
     
-    // Sinon créer un objet vendeur par défaut
-    return {
-      nom: vendeurModel || 'Sponsor',
-      type: (vendeurModel?.toLowerCase() === 'club' ? 'club' : 'sponsor')
-    };
-  };
-  
-  // Fonction pour traiter et valider les images
-  const processImages = (images: string[] | undefined, baseUrl: string): string[] => {
-    // Si pas d'images ou tableau vide, retourner une image par défaut
-    if (!images || images.length === 0) {
-      console.log('Aucune image trouvée, utilisation de l\'image par défaut');
-      return ['/placeholder.png'];
+    // Filtrer par club
+    if (clubId && (!product.vendeur || product.vendeur.type !== 'club' || product.vendeur._id !== clubId)) {
+      return false;
     }
     
-    // Filtrer les URL vides ou invalides
-    const validImages = images.filter(img => img && typeof img === 'string');
-    
-    if (validImages.length === 0) {
-      console.log('Aucune image valide trouvée, utilisation de l\'image par défaut');
-      return ['/placeholder.png'];
+    // Filtrer par sponsor
+    if (sponsorId && (!product.vendeur || product.vendeur.type !== 'sponsor' || product.vendeur._id !== sponsorId)) {
+      return false;
     }
     
-    // Obtenir l'URL de base correcte pour les requêtes API
-    const apiBaseUrl = baseUrl || window.location.origin;
-    console.log('URL de base pour les images:', apiBaseUrl);
+    // Filtrer par catégorie
+    if (category && product.categorie !== category) {
+      return false;
+    }
     
-    // Transformer les URLs relatives en URLs absolues si nécessaire
-    return validImages.map(img => {
-      // Si c'est déjà une URL absolue, la laisser telle quelle
-      if (img.startsWith('http://') || img.startsWith('https://')) {
-        return img;
-      }
-      
-      // Si c'est un chemin commençant par /uploads/, ajouter l'URL de base de l'API
-      if (img.startsWith('/uploads/')) {
-        const fullUrl = `${apiBaseUrl}${img}`;
-        console.log(`Image convertie: ${img} -> ${fullUrl}`);
-        return fullUrl;
-      }
-      
-      // Si c'est un placeholder, le laisser tel quel
-      if (img === '/placeholder.png') {
-        return img;
-      }
-      
-      // Pour tout autre chemin absolu, ajouter l'URL de base
-      if (img.startsWith('/')) {
-        return `${apiBaseUrl}${img}`;
-      }
-      
-      // Sinon c'est un chemin relatif, ajouter le préfixe approprié
-      return `${apiBaseUrl}/uploads/products/${img}`;
-    });
-  };
+    return true;
+  });
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <FaSpinner className="text-4xl animate-spin text-gray-700" />
+      <div className="flex flex-col items-center justify-center w-full p-8">
+        <FaSpinner className="text-4xl animate-spin text-primary" />
+        <p className="mt-4 text-lg">Chargement des produits...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="py-12 text-center">
-        <p className="text-lg text-red-500">{error}</p>
-        <button
-          onClick={() => setError(null)}
-          className="px-6 py-2 mt-4 text-white bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
-        >
-          Réessayer
-        </button>
+      <div className="p-4 mt-4 text-white bg-red-500 rounded-md">
+        <p><strong>Erreur:</strong> {error}</p>
       </div>
     );
   }
 
-  if (products.length === 0) {
+  if (!filteredProducts.length) {
     return (
-      <div className="py-12 text-center">
+      <div className="p-8 text-center">
         <p className="text-lg text-gray-500">
-          Aucun produit trouvé pour ces critères.
+          Aucun produit ne correspond à votre recherche.
+          {searchTerm && <span className="block mt-2">Terme recherché: "{searchTerm}"</span>}
+          {category && <span className="block mt-2">Catégorie: {category}</span>}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map(product => (
-          <ProductCard key={product._id} {...product} />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {filteredProducts.map((product) => (
+        <ProductCard
+          key={product._id}
+          _id={product._id}
+          nom={product.nom}
+          prix={product.prix}
+          description={product.description}
+          images={product.images}
+          notesMoyenne={product.notesMoyenne}
+          vendeur={product.vendeur}
+        />
+      ))}
     </div>
   );
 };

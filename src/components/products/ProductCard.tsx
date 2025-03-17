@@ -11,8 +11,8 @@ interface ProductCardProps {
   description: string;
   images: string[];
   notesMoyenne: number;
-  vendeur: {
-    _id: string;
+  vendeur?: {
+    _id?: string;
     nom: string;
     type: 'sponsor' | 'club';
   };
@@ -43,9 +43,9 @@ export const ProductCard = ({
       nom,
       prix,
       quantite: 1,
-      image: images[0],
-      vendeur: vendeur,
-      vendeurModel: vendeur.type === 'sponsor' ? 'Sponsor' : 'Club'
+      image: images?.[0] || '',
+      vendeur: vendeur || { nom: 'Inconnu', type: 'sponsor', _id: 'unknown' },
+      vendeurModel: vendeur?.type === 'sponsor' ? 'Sponsor' : 'Club'
     });
     
     toast.success('Produit ajouté au panier');
@@ -170,17 +170,21 @@ export const ProductCard = ({
             {/* Badge du vendeur */}
             <div className="absolute top-3 left-3">
               <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                vendeur.type === 'sponsor' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                vendeur?.type === 'sponsor' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
               } backdrop-blur-sm shadow-sm`}>
-                {vendeur.type === 'sponsor' ? 'Sponsor' : 'Club'}
+                {vendeur?.type === 'sponsor' ? 'Sponsor' : 'Club'}
               </span>
             </div>
             
             {/* Prix en badge */}
             <div className="absolute bottom-3 left-3">
-              <span className="inline-flex items-center px-4 py-2 text-xl font-bold text-white bg-red-600 rounded-lg shadow-lg">
+              {/* <span className="inline-flex items-center px-4 py-2 text-xl font-bold text-white bg-red-600 rounded-lg shadow-lg">
                 {prix.toFixed(2)} €
-              </span>
+              </span> */}
+
+                <span className="inline-flex items-center px-4 py-2 text-xl font-bold text-white rounded-lg shadow-lg bg-red-400/80 animate-pulse">
+                  {prix.toFixed(2)} €
+                </span>
             </div>
             
             {/* Actions au survol */}
@@ -235,7 +239,7 @@ export const ProductCard = ({
           <p className="text-base text-gray-600 line-clamp-2 min-h-[3rem] mb-3">{description}</p>
           
           <div className="mt-auto mb-2 text-base font-medium text-gray-600">
-            <span>{vendeur.nom}</span>
+            <span>{vendeur?.nom || 'Inconnu'}</span>
           </div>
         </div>
         
@@ -284,9 +288,9 @@ export const ProductCard = ({
               <div className="flex flex-col w-full p-6 overflow-y-auto md:w-1/2">
                 <div className="mb-2">
                   <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                    vendeur.type === 'sponsor' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                    vendeur?.type === 'sponsor' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                   }`}>
-                    {vendeur.type === 'sponsor' ? 'Sponsor' : 'Club'}: {vendeur.nom}
+                    {vendeur?.type === 'sponsor' ? 'Sponsor' : 'Club'}: {vendeur?.nom || 'Inconnu'}
                   </span>
                 </div>
                 

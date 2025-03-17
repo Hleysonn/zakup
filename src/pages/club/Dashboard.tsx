@@ -105,35 +105,47 @@ const ClubDashboard = () => {
   const fetchClubData = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/api/clubs/dashboard');
       
-      if (response.data && response.data.success) {
-        const dashboardData = response.data.data || {};
+      // Récupérer les produits du club
+      const productsResponse = await axiosInstance.get('/api/clubs/products');
+      console.log('Réponse des produits:', productsResponse.data);
+      
+      if (productsResponse.data && Array.isArray(productsResponse.data.data)) {
+        const clubProducts = productsResponse.data.data;
+        console.log('Produits du club:', clubProducts);
         
-        // Log complet des données pour analyse
-        console.log('Données complètes du dashboard:', dashboardData);
+        setProducts(clubProducts.map(product => ({
+          _id: product._id,
+          nom: product.nom || 'Produit sans nom',
+          prix: typeof product.prix === 'number' ? product.prix : 0,
+          categorie: product.categorie || 'Non catégorisé',
+          stock: typeof product.stock === 'number' ? product.stock : 0,
+          vendu: typeof product.vendu === 'number' ? product.vendu : 0
+        })));
+
+        // Mettre à jour les stats avec le nombre réel de produits
+        setStats(prevStats => ({
+          ...prevStats,
+          totalProduits: clubProducts.length,
+          produitsVendus: clubProducts.reduce((acc, product) => acc + (product.vendu || 0), 0),
+          totalRevenu: clubProducts.reduce((acc, product) => acc + ((product.prix || 0) * (product.vendu || 0)), 0)
+        }));
+      }
+
+      // Récupérer les autres statistiques du dashboard
+      const dashboardResponse = await axiosInstance.get('/api/clubs/dashboard');
+      console.log('Réponse du dashboard:', dashboardResponse.data);
+      
+      if (dashboardResponse.data && dashboardResponse.data.success) {
+        const dashboardData = dashboardResponse.data.data || {};
         
-        if (response.data.error) {
-          console.warn("Données partielles reçues:", response.data.message);
-          toast.warning("Certaines données peuvent être incomplètes. L'équipe technique a été informée.");
-        }
-        
-        setStats(dashboardData);
-        
-        if (dashboardData.products && Array.isArray(dashboardData.products)) {
-          const realProducts = dashboardData.products.filter(product => 
-            product._id && typeof product._id === 'string' && !product._id.startsWith('temp-')
-          );
-          
-          setProducts(realProducts.map(product => ({
-            _id: product._id,
-            nom: product.nom || 'Produit sans nom',
-            prix: typeof product.prix === 'number' ? product.prix : 0,
-            categorie: product.categorie || 'Non catégorisé',
-            stock: typeof product.stock === 'number' ? product.stock : 0,
-            vendu: typeof product.vendu === 'number' ? product.vendu : 0
-          })));
-        }
+        // Mettre à jour les stats en gardant le nombre de produits déjà défini
+        setStats(prevStats => ({
+          ...dashboardData,
+          totalProduits: prevStats?.totalProduits || 0,
+          produitsVendus: prevStats?.produitsVendus || 0,
+          totalRevenu: prevStats?.totalRevenu || 0
+        }));
         
         if (dashboardData.donations && Array.isArray(dashboardData.donations)) {
           const realDonations = dashboardData.donations.filter(don => 
@@ -152,13 +164,11 @@ const ClubDashboard = () => {
             date: don.date || new Date().toISOString()
           })));
         }
-        
-        setError(null);
-      } else {
-        throw new Error('La réponse du serveur n\'indique pas un succès ou est mal formée');
       }
+      
+      setError(null);
     } catch (err) {
-      console.error('Erreur lors du chargement des données:', err);
+      console.error('Erreur complète:', err);
       
       if (axios.isAxiosError(err)) {
         const status = err.response?.status || 'inconnu';
@@ -173,7 +183,7 @@ const ClubDashboard = () => {
           setError(`Erreur ${status}: ${message}`);
         }
       } else {
-      setError('Impossible de charger les données du tableau de bord');
+        setError('Impossible de charger les données du tableau de bord');
       }
       
       toast.error('Une erreur est survenue lors du chargement des données');
