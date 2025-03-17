@@ -88,9 +88,9 @@ const RegisterForm = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-2xl p-8 rounded-lg shadow-md bg-gradient-to-r from-gray-700 to-gray-800">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Créer un compte</h2>
+          <h2 className="text-2xl font-bold text-white">Créer un compte</h2>
           <p className="mt-2 text-sm text-gray-600">
             Rejoignez notre communauté et profitez de tous nos services
           </p>

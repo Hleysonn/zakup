@@ -72,9 +72,9 @@ const LoginForm = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
+      <div className="w-full max-w-md p-8 rounded-lg shadow-md bg-gradient-to-r from-gray-700 to-gray-800">
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl font-bold text-white">Connexion</h2>
           <p className="mt-2 text-sm text-gray-600">
             Connectez-vous pour accéder à votre compte
           </p>
@@ -108,11 +108,11 @@ const LoginForm = () => {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Email
               </label>
               <div className="relative group">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaEnvelope className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="email"
                   {...register('email', {
@@ -122,7 +122,7 @@ const LoginForm = () => {
                       message: 'Adresse email invalide',
                     },
                   })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="votre@email.com"
                 />
               </div>
@@ -132,11 +132,11 @@ const LoginForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Mot de passe
               </label>
               <div className="relative group">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaLock className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   {...register('password', {
@@ -146,13 +146,13 @@ const LoginForm = () => {
                       message: 'Le mot de passe doit contenir au moins 6 caractères',
                     },
                   })}
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full py-2 pl-10 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
@@ -169,9 +169,9 @@ const LoginForm = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="remember-me" className="block ml-2 text-sm text-gray-700">
                 Se souvenir de moi
               </label>
             </div>
@@ -181,15 +181,15 @@ const LoginForm = () => {
             </a>
           </div>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center justify-between mt-6">
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               {loading ? (
                 <>
-                  <FaSpinner className="animate-spin mr-2" />
+                  <FaSpinner className="mr-2 animate-spin" />
                   Connexion en cours...
                 </>
               ) : (
@@ -199,7 +199,7 @@ const LoginForm = () => {
           </div>
         </form>
 
-        <p className="mt-8 text-center text-sm text-gray-600">
+        <p className="mt-8 text-sm text-center text-gray-600">
           Pas encore de compte ?{' '}
           <a href="/register" className="font-medium text-blue-600 hover:text-blue-500">
             S'inscrire
