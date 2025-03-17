@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import axios from 'axios';
-import { FaSearch, FaSpinner, FaExclamationTriangle, FaBuilding } from 'react-icons/fa';
+import { FaSearch, FaSpinner, FaExclamationTriangle, FaBuilding, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
 
 interface Sponsor {
   _id: string;
   raisonSociale: string;
   logo?: string;
   description: string;
+  secteur?: string;
+  ville?: string;
 }
 
 const Sponsors = () => {
@@ -78,7 +80,7 @@ const Sponsors = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0">Découvrez nos sponsors</h1>
+        <h1 className="text-3xl font-bold mb-4 md:mb-0 text-white">Découvrez nos sponsors</h1>
         
         <form onSubmit={handleSearch} className="w-full md:w-auto">
           <div className="relative">
@@ -87,7 +89,7 @@ const Sponsors = () => {
               placeholder="Rechercher un sponsor..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-80 px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full md:w-80 px-4 py-2 pr-10 border border-gray-700 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="submit"
@@ -113,29 +115,47 @@ const Sponsors = () => {
             <Link
               key={sponsor._id}
               to={`/sponsors/${sponsor._id}`}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              className="overflow-hidden bg-slate-800 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
-              <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
+              <div className="relative">
                 {sponsor.logo ? (
-                  <img
-                    src={sponsor.logo}
-                    alt={sponsor.raisonSociale}
-                    className="max-h-full max-w-full object-contain"
-                  />
+                  <div className="w-full bg-slate-900 flex items-center justify-center overflow-hidden p-6 h-48">
+                    <img
+                      src={sponsor.logo}
+                      alt={sponsor.raisonSociale}
+                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                 ) : (
-                  <FaBuilding className="text-gray-300" size={64} />
+                  <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900">
+                    <FaBuilding className="text-4xl text-gray-400" />
+                  </div>
+                )}
+                
+                {sponsor.secteur && (
+                  <div className="absolute top-3 left-3 px-3 py-1 text-sm font-medium text-white bg-purple-600/80 backdrop-blur-sm rounded-full shadow-md">
+                    <span>{sponsor.secteur}</span>
+                  </div>
                 )}
               </div>
               
-              <div className="p-4">
-                <h2 className="text-xl font-bold mb-2 text-gray-800">{sponsor.raisonSociale}</h2>
-                <p className="text-gray-600 line-clamp-3">
+              <div className="p-5">
+                <h2 className="mb-3 text-xl font-bold text-white group-hover:text-primary transition-colors">{sponsor.raisonSociale}</h2>
+                <p className="text-gray-300 line-clamp-2">
                   {sponsor.description || 'Aucune description disponible.'}
                 </p>
-              </div>
-              
-              <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <span className="text-primary font-medium">Voir les détails</span>
+                
+                <div className="flex justify-between items-center mt-4">
+                  <div className="flex items-center text-sm text-gray-400">
+                    <FaMapMarkerAlt className="mr-1" />
+                    <span>{sponsor.ville || "Lieu non spécifié"}</span>
+                  </div>
+                  
+                  <div className="inline-flex items-center font-medium text-primary group-hover:translate-x-1 transition-transform">
+                    Voir les détails
+                    <FaArrowRight className="ml-1 text-xs" />
+                  </div>
+                </div>
               </div>
             </Link>
           ))}

@@ -24,22 +24,22 @@ const Home = () => {
             <p className="text-xl md:text-2xl text-white/90">
               Découvrez des produits sportifs de qualité, soutenez vos clubs préférés et connectez-vous avec des sponsors passionnés.
             </p>
-            <form onSubmit={handleSearch} className="max-w-2xl mx-auto mt-8">
-              <div className="flex bg-white rounded-lg shadow-lg p-1">
+            <form onSubmit={handleSearch} className="max-w-xl mx-auto mt-8 px-4 sm:px-0">
+              <div className="flex flex-col sm:flex-row bg-white rounded-lg shadow-lg p-1">
                 <input
                   type="text"
                   placeholder="Que recherchez-vous ?"
-                  className="flex-1 px-6 py-4 text-gray-800 bg-transparent focus:outline-none text-lg"
+                  className="w-full sm:flex-1 px-3 sm:px-4 py-2 text-gray-800 bg-transparent focus:outline-none text-sm rounded-md sm:rounded-none"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Link
                   to="/products"
                   search={{ search: searchTerm }}
-                  className="bg-primary text-white px-8 py-4 rounded-md hover:bg-primary/90 transition-colors flex items-center space-x-2"
+                  className="w-full sm:w-auto mt-2 sm:mt-0 bg-primary text-white px-3 sm:px-6 py-2 rounded-md hover:bg-primary/90 transition-colors flex items-center justify-center sm:justify-start space-x-2"
                 >
-                  <FaSearch className="text-xl" />
-                  <span>Rechercher</span>
+                  <FaSearch className="text-sm sm:text-base" />
+                  <span className="text-sm sm:text-base">Rechercher</span>
                 </Link>
               </div>
             </form>
@@ -61,7 +61,7 @@ const Home = () => {
             >
               <div className="bg-white rounded-xl shadow-soft p-6 text-center transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="text-primary text-4xl mb-4 flex justify-center">
-                  <FaTshirt className="transform transition-transform group-hover:scale-110 duration-200" />
+                  <FaTshirt className="transform transition-transform group-hover:scale-110 duration-200 text-slate-500" />
                 </div>
                 <h3 className="font-semibold text-gray-800">Vêtements</h3>
               </div>
@@ -74,7 +74,7 @@ const Home = () => {
             >
               <div className="bg-white rounded-xl shadow-soft p-6 text-center transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="text-primary text-4xl mb-4 flex justify-center">
-                  <FaFootballBall className="transform transition-transform group-hover:scale-110 duration-200" />
+                  <FaFootballBall className="transform transition-transform group-hover:scale-110 duration-200 text-slate-500" />
                 </div>
                 <h3 className="font-semibold text-gray-800">Équipements</h3>
               </div>
@@ -87,7 +87,7 @@ const Home = () => {
             >
               <div className="bg-white rounded-xl shadow-soft p-6 text-center transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="text-primary text-4xl mb-4 flex justify-center">
-                  <FaRunning className="transform transition-transform group-hover:scale-110 duration-200" />
+                  <FaRunning className="transform transition-transform group-hover:scale-110 duration-200 text-slate-500" />
                 </div>
                 <h3 className="font-semibold text-gray-800">Accessoires</h3>
               </div>
@@ -100,7 +100,7 @@ const Home = () => {
             >
               <div className="bg-white rounded-xl shadow-soft p-6 text-center transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="text-primary text-4xl mb-4 flex justify-center">
-                  <FaAppleAlt className="transform transition-transform group-hover:scale-110 duration-200" />
+                  <FaAppleAlt className="transform transition-transform group-hover:scale-110 duration-200 text-slate-500" />
                 </div>
                 <h3 className="font-semibold text-gray-800">Nutrition</h3>
               </div>
@@ -113,7 +113,7 @@ const Home = () => {
             >
               <div className="bg-white rounded-xl shadow-soft p-6 text-center transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="text-primary text-4xl mb-4 flex justify-center">
-                  <FaShoppingCart className="transform transition-transform group-hover:scale-110 duration-200" />
+                  <FaShoppingCart className="transform transition-transform group-hover:scale-110 duration-200 text-slate-500" />
                 </div>
                 <h3 className="font-semibold text-gray-800">Autres</h3>
               </div>
@@ -141,17 +141,17 @@ const Home = () => {
       </section>
 
       {/* Sponsors et Clubs avec design amélioré */}
-      <section className="py-16 px-4 bg-gray-50">
+      <section className="py-16 px-4 bg-slate-500">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="group">
               <div className="bg-white rounded-xl shadow-soft p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="flex items-center justify-center mb-6">
-                  <div className="text-primary text-6xl transform transition-transform group-hover:scale-110 duration-200">
+                  <div className="text-primary text-6xl transform transition-transform group-hover:scale-110 duration-200 text-slate-500">
                     <FaBuilding />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-center mb-4">Sponsors Vedettes</h3>
+                <h3 className="text-2xl font-bold text-center mb-4 text-slate-500">Sponsors Vedettes</h3>
                 <p className="text-center text-gray-600 mb-8">
                   Découvrez nos sponsors qui soutiennent le monde du sport. Des marques reconnues aux entreprises locales engagées.
                 </p>
@@ -167,11 +167,11 @@ const Home = () => {
             <div className="group">
               <div className="bg-white rounded-xl shadow-soft p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="flex items-center justify-center mb-6">
-                  <div className="text-primary text-6xl transform transition-transform group-hover:scale-110 duration-200">
+                  <div className="text-primary text-6xl transform transition-transform group-hover:scale-110 duration-200 text-slate-500">
                     <FaUsers />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-center mb-4">Clubs Sportifs</h3>
+                <h3 className="text-2xl font-bold text-center mb-4 text-slate-500">Clubs Sportifs</h3>
                 <p className="text-center text-gray-600 mb-8">
                   Soutenez vos clubs sportifs préférés en achetant leurs produits et en participant à leurs événements.
                 </p>

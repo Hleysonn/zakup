@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import axiosInstance from '../config/axios';
-import { FaUsers, FaSearch, FaSpinner, FaFutbol } from 'react-icons/fa';
+import { FaUsers, FaSearch, FaSpinner, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
 
 interface Club {
   _id: string;
@@ -9,6 +9,7 @@ interface Club {
   logo?: string;
   description?: string;
   sport?: string;
+  ville?: string;
 }
 
 const Clubs = () => {
@@ -62,34 +63,37 @@ const Clubs = () => {
 
   return (
     <div className="container px-4 py-8 mx-auto">
-      <h1 className="mb-6 text-3xl font-bold">Clubs Sportifs</h1>
       
-      <div className="p-6 mb-8 bg-white rounded-lg shadow-md">
-        <p className="mb-6 text-gray-700">
+      
+      <div className="mb-8 flex justify-between items-center ">
+      <h1 className="mb-6 text-3xl font-bold">Clubs Sportifs</h1>
+        {/* <p className="mb-6 text-gray-700">
           Découvrez les clubs sportifs partenaires de notre plateforme. Soutenez vos clubs préférés en achetant leurs produits et en participant à leurs événements.
-        </p>
+        </p> */}
 
         <div className="flex flex-col gap-4 mb-4 md:flex-row">
-          <form onSubmit={handleSearch} className="flex flex-1">
-            <input
-              type="text"
-              placeholder="Rechercher un club..."
-              className="flex-grow px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 text-white bg-primary rounded-r-md hover:bg-primary/90"
-            >
-              <FaSearch />
-            </button>
+          <form onSubmit={handleSearch} className="w-full md:w-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Rechercher un club..."
+                className="w-full md:w-80 px-4 py-2 pr-10 border border-gray-700 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
+              >
+                <FaSearch />
+              </button>
+            </div>
           </form>
           
           <select
             value={selectedSport}
             onChange={(e) => setSelectedSport(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-slate-500"
           >
             <option value="">Tous les sports</option>
             {sports.map(sport => (
@@ -113,40 +117,52 @@ const Clubs = () => {
           <p className="mt-2 text-sm">Essayez de modifier votre recherche ou votre filtre</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 w-[80%]">
           {filteredClubs.map(club => (
             <Link
               key={club._id}
               to={`/clubs/${club._id}`}
-              className="overflow-hidden transition-shadow bg-white rounded-lg shadow-md hover:shadow-lg"
+              className="overflow-hidden bg-slate-800 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
-              <div className="flex items-center justify-center h-40 bg-gray-100">
+              <div className="relative">
                 {club.logo ? (
-                  <img
-                    src={club.logo}
-                    alt={club.raisonSociale}
-                    className="object-contain max-w-full max-h-full"
-                  />
+                  <div className="w-full aspect-[16/9] bg-slate-900 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={club.logo}
+                      alt={club.raisonSociale}
+                      className="object-contain w-full h-full max-h-40 group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                 ) : (
-                  <FaUsers className="text-gray-400" size={64} />
-                )}
-              </div>
-              <div className="p-4">
-                <h2 className="mb-2 text-xl font-semibold">{club.raisonSociale}</h2>
-                
-                {club.sport && (
-                  <div className="flex items-center mb-2 text-gray-600">
-                    <FaFutbol className="mr-2" />
-                    <span>{club.sport}</span>
+                  <div className="w-full aspect-[16/9] flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900">
+                    <FaUsers className="text-4xl text-gray-400" />
                   </div>
                 )}
                 
+                {club.sport && (
+                  <div className="absolute top-3 left-3 px-3 py-1 text-sm font-medium text-white bg-primary/80 backdrop-blur-sm rounded-full shadow-md">
+                    <span>{club.sport}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-5">
+                <h2 className="mb-3 text-xl font-bold text-white group-hover:text-primary transition-colors">{club.raisonSociale}</h2>
+                
                 {club.description && (
-                  <p className="mb-3 text-gray-600 line-clamp-2">{club.description}</p>
+                  <p className="mb-4 text-gray-300 line-clamp-2">{club.description}</p>
                 )}
                 
-                <div className="mt-4 font-medium text-primary hover:underline">
-                  Voir les détails
+                <div className="flex justify-between items-center mt-4">
+                  <div className="flex items-center text-sm text-gray-400">
+                    <FaMapMarkerAlt className="mr-1" />
+                    <span>{club.ville || "Lieu non spécifié"}</span>
+                  </div>
+                  
+                  <div className="inline-flex items-center font-medium text-primary group-hover:translate-x-1 transition-transform">
+                    Voir les détails
+                    <FaArrowRight className="ml-1 text-xs" />
+                  </div>
                 </div>
               </div>
             </Link>

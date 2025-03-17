@@ -1,6 +1,6 @@
 import { FaTrash, FaArrowLeft, FaShoppingCart, FaTimes } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { toast } from 'react-hot-toast';
 
 interface CartModalProps {
@@ -10,6 +10,7 @@ interface CartModalProps {
 
 export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
   const { items: cartItems, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
+  const navigate = useNavigate();
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity > 0) {
@@ -151,7 +152,11 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
               </Link>
               <Link
                 to="/checkout"
-                onClick={onClose}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClose();
+                  navigate({ to: '/checkout' });
+                }}
                 className="bg-primary hover:bg-primary/90 text-white font-medium py-2 rounded-md text-center transition-colors"
               >
                 Commander

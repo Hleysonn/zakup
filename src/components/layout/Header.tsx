@@ -89,54 +89,54 @@ export const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b shadow-sm bg-slate-900/80 border-slate-800 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b shadow-md bg-slate-900/90 border-slate-800 backdrop-blur-sm">
         <div className="container px-4 mx-auto">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold font-display text-primary">ZakUp</span>
+            <Link to="/" className="flex items-center space-x-2 z-10">
+              <span className="text-xl sm:text-2xl font-bold font-display text-primary">ZakUp</span>
             </Link>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex-1 hidden max-w-xl mx-8 md:flex">
+            {/* Search Bar - visible on medium screens and up */}
+            <form onSubmit={handleSearch} className="flex-1 hidden max-w-md mx-4 lg:max-w-xl lg:mx-8 md:flex">
               <div className="relative w-full">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Rechercher des produits..."
-                  className="w-full pl-10 input"
+                  className="w-full pl-10 py-2 bg-slate-800 border border-slate-700 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
               </div>
             </form>
 
-            {/* Navigation */}
-            <nav className="items-center hidden space-x-8 md:flex">
-              <Link to="/" className="nav-link">
+            {/* Navigation - visible on medium screens and up */}
+            <nav className="items-center hidden space-x-3 lg:space-x-6 md:flex">
+              <Link to="/" className="px-2 py-1 text-gray-300 transition-colors hover:text-primary">
                 Accueil
               </Link>
-              <Link to="/products" className="nav-link">
+              <Link to="/products" className="px-2 py-1 text-gray-300 transition-colors hover:text-primary">
                 Produits
               </Link>
-              <Link to="/clubs" className="nav-link">
+              <Link to="/clubs" className="px-2 py-1 text-gray-300 transition-colors hover:text-primary">
                 Clubs
               </Link>
-              <Link to="/sponsors" className="nav-link">
+              <Link to="/sponsors" className="px-2 py-1 text-gray-300 transition-colors hover:text-primary">
                 Sponsors
               </Link>
             </nav>
 
             {/* User Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1 sm:space-x-4 z-10">
               <button 
                 onClick={toggleCart}
-                className="relative p-3 hover:bg-slate-800 rounded-full transition-all duration-200"
+                className="relative p-2 sm:p-3 hover:bg-slate-800 rounded-full transition-all duration-200"
                 aria-label="Voir le panier d'achat"
               >
-                <FaShoppingCart className="text-2xl text-white" />
+                <FaShoppingCart className="text-xl sm:text-2xl text-white" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-7 h-7 text-sm font-bold text-white bg-red-600 rounded-full shadow-lg border-2 border-slate-900">
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 sm:w-7 sm:h-7 text-xs font-bold text-white bg-red-600 rounded-full shadow-lg border-2 border-slate-900">
                     {cartItemCount > 99 ? '99+' : cartItemCount}
                   </span>
                 )}
@@ -146,23 +146,23 @@ export const Header = () => {
                 <div className="relative user-menu-container">
                   <button 
                     onClick={toggleUserMenu}
-                    className="flex items-center space-x-2 text-gray-200 transition-colors hover:text-primary"
+                    className="flex items-center space-x-1 sm:space-x-2 text-gray-200 transition-colors hover:text-primary"
                   >
-                    <FaUserCircle className="text-xl" />
+                    <FaUserCircle className="text-lg sm:text-xl" />
                     <span className="hidden md:inline">{user.nom}</span>
                     <FaChevronDown className="text-xs" />
                   </button>
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 z-50 w-48 py-1 mt-2 bg-white rounded-md shadow-lg">
+                    <div className="absolute right-0 z-50 w-48 py-1 mt-2 bg-slate-800 border border-slate-700 rounded-md shadow-lg">
                       {userType === 'club' && (
                         <>
-                          <Link to="/club/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link to="/club/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-primary">
                             <FaTachometerAlt className="mr-2 text-gray-500" />
                             Dashboard Club
                           </Link>
                           <button 
                             onClick={handleProfileClick}
-                            className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100"
+                            className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-300 hover:bg-slate-700 hover:text-primary"
                           >
                             <FaUser className="mr-2 text-gray-500" />
                             Mon Profil
@@ -171,13 +171,13 @@ export const Header = () => {
                       )}
                       {userType === 'sponsor' && (
                         <>
-                          <Link to="/sponsor/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link to="/sponsor/dashboard" className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-primary">
                             <FaTachometerAlt className="mr-2 text-gray-500" />
                             Dashboard Sponsor
                           </Link>
                           <button 
                             onClick={handleProfileClick}
-                            className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100"
+                            className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-300 hover:bg-slate-700 hover:text-primary"
                           >
                             <FaUser className="mr-2 text-gray-500" />
                             Mon Profil
@@ -187,20 +187,20 @@ export const Header = () => {
                       {userType !== 'club' && userType !== 'sponsor' && (
                         <button 
                           onClick={handleProfileClick}
-                          className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100"
+                          className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-300 hover:bg-slate-700 hover:text-primary"
                         >
                           <FaUser className="mr-2 text-gray-500" />
                           Mon Profil
                         </button>
                       )}
-                      <Link to="/orders" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link to="/orders" className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-slate-700 hover:text-primary">
                         <FaShoppingCart className="mr-2 text-gray-500" />
                         Mes Commandes
                       </Link>
-                      <hr className="my-1 border-gray-200" />
+                      <hr className="my-1 border-slate-700" />
                       <button
                         onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100"
+                        className="flex items-center w-full px-4 py-2 text-sm text-left text-red-400 hover:bg-slate-700"
                       >
                         <FaSignOutAlt className="mr-2" />
                         Se déconnecter
@@ -209,11 +209,11 @@ export const Header = () => {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center space-x-4">
-                  <Link to="/login" className="text-gray-200 transition-colors hover:text-primary">
+                <div className="flex items-center space-x-2 sm:space-x-4">
+                  <Link to="/login" className="text-sm sm:text-base text-gray-200 transition-colors hover:text-primary">
                     Se connecter
                   </Link>
-                  <Link to="/register" className="px-4 py-2 text-white transition-colors rounded-md bg-primary hover:bg-primary-dark">
+                  <Link to="/register" className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-white transition-colors rounded-md bg-primary hover:bg-primary/90">
                     S'inscrire
                   </Link>
                 </div>
@@ -221,8 +221,9 @@ export const Header = () => {
 
               {/* Mobile Menu Button */}
               <button
-                className="text-gray-200 transition-colors md:hidden hover:text-primary"
+                className="text-gray-200 transition-colors md:hidden hover:text-primary focus:outline-none"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Menu principal"
               >
                 {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
               </button>
@@ -230,89 +231,87 @@ export const Header = () => {
           </div>
 
           {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="py-4 md:hidden">
-              <div className="flex flex-col space-y-4">
-                <form onSubmit={handleSearch} className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Rechercher des produits..."
-                    className="w-full pl-10 input"
-                  />
-                  <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                </form>
-                <Link to="/" className="nav-link">
-                  Accueil
-                </Link>
-                <Link to="/products" className="nav-link">
-                  Produits
-                </Link>
-                <Link to="/clubs" className="nav-link">
-                  Clubs
-                </Link>
-                <Link to="/sponsors" className="nav-link">
-                  Sponsors
-                </Link>
-                {isAuth && user && (
-                  <>
-                    <hr className="my-2 border-gray-700" />
-                    {userType === 'club' && (
-                      <>
-                        <Link to="/club/dashboard" className="flex items-center nav-link">
-                          <FaTachometerAlt className="mr-2" />
-                          Dashboard Club
-                        </Link>
-                        <button 
-                          onClick={handleProfileClick}
-                          className="flex items-center w-full text-left nav-link"
-                        >
-                          <FaUser className="mr-2" />
-                          Mon Profil
-                        </button>
-                      </>
-                    )}
-                    {userType === 'sponsor' && (
-                      <>
-                        <Link to="/sponsor/dashboard" className="flex items-center nav-link">
-                          <FaTachometerAlt className="mr-2" />
-                          Dashboard Sponsor
-                        </Link>
-                        <button 
-                          onClick={handleProfileClick}
-                          className="flex items-center w-full text-left nav-link"
-                        >
-                          <FaUser className="mr-2" />
-                          Mon Profil
-                        </button>
-                      </>
-                    )}
-                    {userType !== 'club' && userType !== 'sponsor' && (
+          <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}>
+            <div className="flex flex-col space-y-4">
+              <form onSubmit={handleSearch} className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Rechercher des produits..."
+                  className="w-full pl-10 py-2 bg-slate-800 border border-slate-700 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+              </form>
+              <Link to="/" className="px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                Accueil
+              </Link>
+              <Link to="/products" className="px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                Produits
+              </Link>
+              <Link to="/clubs" className="px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                Clubs
+              </Link>
+              <Link to="/sponsors" className="px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                Sponsors
+              </Link>
+              {isAuth && user && (
+                <>
+                  <hr className="my-2 border-slate-700" />
+                  {userType === 'club' && (
+                    <>
+                      <Link to="/club/dashboard" className="flex items-center px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                        <FaTachometerAlt className="mr-2" />
+                        Dashboard Club
+                      </Link>
                       <button 
                         onClick={handleProfileClick}
-                        className="flex items-center w-full text-left nav-link"
+                        className="flex items-center w-full px-2 py-3 text-left text-gray-300 transition-colors border-b border-slate-700 hover:text-primary"
                       >
                         <FaUser className="mr-2" />
                         Mon Profil
                       </button>
-                    )}
-                    <Link to="/orders" className="flex items-center nav-link">
-                      <FaShoppingCart className="mr-2" />
-                      Mes Commandes
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center text-red-500 nav-link"
+                    </>
+                  )}
+                  {userType === 'sponsor' && (
+                    <>
+                      <Link to="/sponsor/dashboard" className="flex items-center px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                        <FaTachometerAlt className="mr-2" />
+                        Dashboard Sponsor
+                      </Link>
+                      <button 
+                        onClick={handleProfileClick}
+                        className="flex items-center w-full px-2 py-3 text-left text-gray-300 transition-colors border-b border-slate-700 hover:text-primary"
+                      >
+                        <FaUser className="mr-2" />
+                        Mon Profil
+                      </button>
+                    </>
+                  )}
+                  {userType !== 'club' && userType !== 'sponsor' && (
+                    <button 
+                      onClick={handleProfileClick}
+                      className="flex items-center w-full px-2 py-3 text-left text-gray-300 transition-colors border-b border-slate-700 hover:text-primary"
                     >
-                      <FaSignOutAlt className="mr-2" />
-                      Se déconnecter
+                      <FaUser className="mr-2" />
+                      Mon Profil
                     </button>
-                  </>
-                )}
-              </div>
+                  )}
+                  <Link to="/orders" className="flex items-center px-2 py-3 text-gray-300 transition-colors border-b border-slate-700 hover:text-primary">
+                    <FaShoppingCart className="mr-2" />
+                    Mes Commandes
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-2 py-3 text-left text-red-400 transition-colors hover:bg-slate-700"
+                  >
+                    <FaSignOutAlt className="mr-2" />
+                    Se déconnecter
+                  </button>
+                </>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </header>
 

@@ -3,7 +3,7 @@ const About = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">À propos de ZakUp</h1>
       
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-slate-800 rounded-lg shadow-md p-6 mb-8 text-white">
         <h2 className="text-xl font-semibold mb-4">Notre mission</h2>
         <p className="mb-4">
           ZakUp est né d'une passion pour le sport et d'une volonté de créer des liens plus forts entre les clubs sportifs, leurs sponsors et leurs supporters. Notre plateforme offre un espace où tous les acteurs du monde sportif peuvent se rencontrer, échanger et prospérer ensemble.
@@ -13,7 +13,7 @@ const About = () => {
         </p>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-slate-800 rounded-lg shadow-md p-6 mb-8 text-white">
         <h2 className="text-xl font-semibold mb-4">Nos valeurs</h2>
         <ul className="list-disc pl-6 space-y-2">
           <li><strong>Passion :</strong> Le sport est au cœur de tout ce que nous faisons.</li>
@@ -24,7 +24,7 @@ const About = () => {
         </ul>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-slate-800 rounded-lg shadow-md p-6 mb-8 text-white">
         <h2 className="text-xl font-semibold mb-4">Notre équipe</h2>
         <p className="mb-4">
           Nous sommes une équipe de passionnés de sport et de technologie, déterminés à transformer la façon dont les clubs sportifs interagissent avec leurs supporters et sponsors.
@@ -34,7 +34,7 @@ const About = () => {
         </p>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-slate-800 rounded-lg shadow-md p-6 text-white">
         <h2 className="text-xl font-semibold mb-4">Nous contacter</h2>
         <p className="mb-4">
           Nous sommes toujours ravis d'entendre vos commentaires, questions ou suggestions. N'hésitez pas à nous contacter via notre page de contact ou directement par email à <a href="mailto:contact@zakup.com" className="text-primary hover:underline">contact@zakup.com</a>.

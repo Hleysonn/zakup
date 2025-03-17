@@ -49,7 +49,7 @@ const Contact = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="rounded-lg shadow-md p-6 bg-slate-800 text-white mb-8">
             <h2 className="text-xl font-semibold mb-4">Nos coordonnées</h2>
             
             <div className="space-y-4">
@@ -59,7 +59,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-medium">Adresse</h3>
-                  <p className="text-gray-600">123 Rue du Sport<br />75000 Paris, France</p>
+                  <p className="text-gray-600">123 Rue du Sport<br />7000 Mons, Belgique</p>
                 </div>
               </div>
               
@@ -69,7 +69,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-medium">Téléphone</h3>
-                  <p className="text-gray-600">+33 1 23 45 67 89</p>
+                  <p className="text-gray-600">+32 065 12 34 56</p>
                 </div>
               </div>
               
@@ -89,7 +89,7 @@ const Contact = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="rounded-lg shadow-md p-6 bg-slate-800 text-white">
             <h2 className="text-xl font-semibold mb-4">Horaires d'ouverture</h2>
             
             <div className="space-y-2">
@@ -109,12 +109,12 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-slate-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-6">Envoyez-nous un message</h2>
           
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="nom" className="block text-gray-700 mb-2">
+              <label htmlFor="nom" className="block text-gray-300 mb-2">
                 Nom complet
               </label>
               <input
@@ -129,7 +129,7 @@ const Contact = () => {
             </div>
             
             <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-gray-300 mb-2">
                 Email
               </label>
               <input
@@ -144,7 +144,7 @@ const Contact = () => {
             </div>
             
             <div className="mb-4">
-              <label htmlFor="sujet" className="block text-gray-700 mb-2">
+              <label htmlFor="sujet" className="block text-gray-300 mb-2">
                 Sujet
               </label>
               <select
@@ -153,7 +153,7 @@ const Contact = () => {
                 value={formData.sujet}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-slate-700 text-white"
               >
                 <option value="">Sélectionnez un sujet</option>
                 <option value="question">Question générale</option>
@@ -165,7 +165,7 @@ const Contact = () => {
             </div>
             
             <div className="mb-6">
-              <label htmlFor="message" className="block text-gray-700 mb-2">
+              <label htmlFor="message" className="block text-gray-300 mb-2">
                 Message
               </label>
               <textarea
@@ -182,7 +182,7 @@ const Contact = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full bg-green-500 text-white py-3 rounded-md hover:bg-green-600/90 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
             >
               {isSubmitting ? (
                 <>

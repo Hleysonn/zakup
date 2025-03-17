@@ -5,7 +5,7 @@ const Privacy = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Politique de Confidentialité</h1>
       
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+      <div className="max-w-4xl mx-auto bg-slate-800 rounded-lg shadow-md p-8 text-white">
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
           <p className="mb-4">

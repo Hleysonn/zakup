@@ -8,7 +8,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* À propos */}
           <div>
-            <h3 className="text-lg font-display font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-display font-semibold text-white mb-4">
               À propos de ZakUp
             </h3>
             <p className="text-gray-600 mb-4">
@@ -33,7 +33,7 @@ export const Footer = () => {
 
           {/* Liens rapides */}
           <div>
-            <h3 className="text-lg font-display font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-display font-semibold text-white mb-4">
               Liens rapides
             </h3>
             <ul className="space-y-2">
@@ -62,7 +62,7 @@ export const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-display font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-display font-semibold text-white mb-4">
               Support
             </h3>
             <ul className="space-y-2">
@@ -91,7 +91,7 @@ export const Footer = () => {
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-lg font-display font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-display font-semibold text-white   mb-4">
               Newsletter
             </h3>
             <p className="text-gray-600 mb-4">

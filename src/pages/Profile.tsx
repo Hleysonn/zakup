@@ -49,6 +49,7 @@ interface InputFieldProps {
   type?: string;
   disabled?: boolean;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  theme?: string;
 }
 
 // Composant réutilisable Card
@@ -66,18 +67,19 @@ const Card = ({ title, children }: { title: string; children: React.ReactNode })
 );
 
 // Composant InputField
-const InputField: React.FC<InputFieldProps> = ({
+const InputField = ({
   label,
   name,
   value = '',
   type = "text",
   disabled,
-  onChange
-}) => (
+  onChange,
+  theme = "dark"
+}: InputFieldProps) => (
   <div className="relative">
     <label 
       htmlFor={name}
-      className="block mb-1 text-sm font-medium text-gray-700"
+      className={`block mb-1 text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
     >
       {label}
     </label>
@@ -88,8 +90,8 @@ const InputField: React.FC<InputFieldProps> = ({
       value={value}
       onChange={onChange}
       disabled={disabled}
-      className={`w-full p-3 bg-transparent border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
-        disabled ? 'bg-gray-100 text-gray-500' : 'text-gray-900'
+      className={`w-full p-3 ${theme === "dark" ? "bg-slate-700 border-slate-600 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+        disabled ? 'opacity-60 cursor-not-allowed' : ''
       }`}
     />
   </div>
@@ -354,6 +356,12 @@ const Profile = () => {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   if (authLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -378,10 +386,11 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl shadow-lg overflow-hidden">
-        {/* Header avec bannière stylisée - inspiration du ClubProfile */}
-        <div className="h-36 bg-gradient-to-r from-blue-500 to-indigo-600 flex flex-col justify-end relative p-6">
-          <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-10"></div>
+      <h1 className="text-3xl font-bold mb-8 text-white">Mon Profil</h1>
+      
+      <div className="bg-slate-800 text-white rounded-xl shadow-xl overflow-hidden border border-slate-700">
+        <div className="h-36 bg-gradient-to-r from-primary to-indigo-600 flex flex-col justify-end relative p-6">
+          <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-20"></div>
           <h1 className="text-3xl font-bold text-white z-10 mb-2">
             {user?.role === 'sponsor' ? 'Profil Sponsor' : 
              user?.role === 'club' ? 'Profil Club' : 
@@ -390,11 +399,10 @@ const Profile = () => {
         </div>
 
         <div className="p-6 md:p-8">
-          {/* En-tête avec avatar et actions */}
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-start gap-6">
               <div className="relative shrink-0">
-                <div className="relative w-28 h-28 overflow-hidden bg-white border-2 border-gray-300 rounded-xl shadow-md transition-all duration-300">
+                <div className="relative w-28 h-28 overflow-hidden bg-slate-700 border-2 border-slate-600 rounded-xl shadow-md transition-all duration-300">
                   <img
                     src={profileData.avatar || '/placeholder-avatar.png'}
                     alt="Avatar"
@@ -431,15 +439,12 @@ const Profile = () => {
               </div>
               
               <div className="flex-1">
-                {/* Nom et actions */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div className="mb-4 md:mb-0">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      {profileData.nom} {profileData.prenom}
-                    </h1>
-                    <p className="text-gray-600">{profileData.email}</p>
-            </div>
-            
+                    <h2 className="text-2xl font-bold text-white">{user?.prenom} {user?.nom}</h2>
+                    <p className="text-gray-300">{user?.email}</p>
+                  </div>
+                  
                   <div className="flex items-center gap-2">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -510,35 +515,53 @@ const Profile = () => {
               <form onSubmit={handleSubmit(onSubmitProfile)}>
                     <div className="space-y-8">
                       <Card title="Informations personnelles">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <InputField
-                            label="Nom"
-                            name="nom"
-                            value={profileData.nom}
-                            onChange={handleInputChange}
-                          />
-                          <InputField
-                            label="Prénom"
-                            name="prenom"
-                            value={profileData.prenom}
-                            onChange={handleInputChange}
-                          />
-                          <InputField
-                            label="Email"
-                            name="email"
-                    type="email"
-                            value={profileData.email}
-                            disabled={true}
-                            onChange={handleInputChange}
-                          />
-                          <InputField
-                            label="Téléphone"
-                            name="telephone"
-                            type="tel"
-                            value={profileData.telephone}
-                            onChange={handleInputChange}
-                          />
-                </div>
+                        <div className="mt-6 space-y-8">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 text-primary">Informations personnelles</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <p className="text-gray-400 text-sm">Nom</p>
+                                <p className="font-medium text-white">{profileData.nom || 'Non renseigné'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Prénom</p>
+                                <p className="font-medium text-white">{profileData.prenom || 'Non renseigné'}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 text-primary">Coordonnées</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <p className="text-gray-400 text-sm">Email</p>
+                                <p className="font-medium text-white">{profileData.email || 'Non renseigné'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Téléphone</p>
+                                <p className="font-medium text-white">{profileData.telephone || 'Non renseigné'}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 text-primary">Adresse</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="md:col-span-2">
+                                <p className="text-gray-400 text-sm">Adresse</p>
+                                <p className="font-medium text-white">{profileData.adresse || 'Non renseignée'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Ville</p>
+                                <p className="font-medium text-white">{profileData.ville || 'Non renseignée'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Code postal</p>
+                                <p className="font-medium text-white">{profileData.codePostal || 'Non renseigné'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </Card>
                       
                       <Card title="Adresse">
@@ -549,20 +572,23 @@ const Profile = () => {
                               name="adresse"
                               value={profileData.adresse}
                               onChange={handleInputChange}
-                  />
+                  theme="dark"
+                            />
                 </div>
                           <InputField
                             label="Ville"
                             name="ville"
                             value={profileData.ville}
                             onChange={handleInputChange}
+                            theme="dark"
                           />
                           <InputField
                             label="Code Postal"
                             name="codePostal"
                             value={profileData.codePostal}
                             onChange={handleInputChange}
-                  />
+                  theme="dark"
+                />
                 </div>
                       </Card>
                 
@@ -607,7 +633,7 @@ const Profile = () => {
                   <div className="relative">
                     <input
                       id="currentPassword"
-                      type={showCurrentPassword ? "text" : "password"}
+                      type={showPassword ? "text" : "password"}
                       {...registerPassword("currentPassword", { 
                         required: "Le mot de passe actuel est requis" 
                       })}
@@ -616,9 +642,9 @@ const Profile = () => {
                     <button
                       type="button"
                             className="absolute right-3 top-3 text-gray-500"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      onClick={togglePasswordVisibility}
                     >
-                      {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
                   {passwordErrors.currentPassword && (
@@ -633,7 +659,7 @@ const Profile = () => {
                   <div className="relative">
                     <input
                       id="newPassword"
-                      type={showNewPassword ? "text" : "password"}
+                      type={showPassword ? "text" : "password"}
                       {...registerPassword("newPassword", { 
                         required: "Le nouveau mot de passe est requis",
                         minLength: {
@@ -646,9 +672,9 @@ const Profile = () => {
                     <button
                       type="button"
                             className="absolute right-3 top-3 text-gray-500"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      onClick={togglePasswordVisibility}
                     >
-                      {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
                   {passwordErrors.newPassword && (
@@ -706,49 +732,52 @@ const Profile = () => {
                     className="space-y-8"
                   >
                     <Card title="Informations personnelles">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                          <h3 className="text-sm font-medium text-gray-500">Nom</h3>
-                          <p className="font-medium text-gray-900">{profileData.nom || 'Non renseigné'}</p>
-                  </div>
-                  
-                  <div>
-                          <h3 className="text-sm font-medium text-gray-500">Prénom</h3>
-                          <p className="font-medium text-gray-900">{profileData.prenom || 'Non renseigné'}</p>
-                  </div>
-                  
-                  <div>
-                          <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                          <p className="font-medium text-gray-900">{profileData.email}</p>
-                  </div>
-                  
-                  <div>
-                          <h3 className="text-sm font-medium text-gray-500">Téléphone</h3>
-                          <p className="font-medium text-gray-900">{profileData.telephone || 'Non renseigné'}</p>
-                  </div>
-                </div>
-                    </Card>
-                    
-                    <Card title="Adresse">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2">
-                          <h3 className="text-sm font-medium text-gray-500">Adresse</h3>
-                          <p className="font-medium text-gray-900">{profileData.adresse || 'Non renseignée'}</p>
-              </div>
-              
-                        {profileData.ville && (
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-500">Ville</h3>
-                            <p className="font-medium text-gray-900">{profileData.ville}</p>
+                      <div className="mt-6 space-y-8">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 text-primary">Informations personnelles</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <p className="text-gray-400 text-sm">Nom</p>
+                              <p className="font-medium text-white">{profileData.nom || 'Non renseigné'}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-sm">Prénom</p>
+                              <p className="font-medium text-white">{profileData.prenom || 'Non renseigné'}</p>
+                            </div>
                           </div>
-                        )}
-                        
-                        {profileData.codePostal && (
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-500">Code Postal</h3>
-                            <p className="font-medium text-gray-900">{profileData.codePostal}</p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 text-primary">Coordonnées</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <p className="text-gray-400 text-sm">Email</p>
+                              <p className="font-medium text-white">{profileData.email || 'Non renseigné'}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-sm">Téléphone</p>
+                              <p className="font-medium text-white">{profileData.telephone || 'Non renseigné'}</p>
+                            </div>
                           </div>
-                        )}
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 text-primary">Adresse</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="md:col-span-2">
+                              <p className="text-gray-400 text-sm">Adresse</p>
+                              <p className="font-medium text-white">{profileData.adresse || 'Non renseignée'}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-sm">Ville</p>
+                              <p className="font-medium text-white">{profileData.ville || 'Non renseignée'}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-sm">Code postal</p>
+                              <p className="font-medium text-white">{profileData.codePostal || 'Non renseigné'}</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </Card>
                     
