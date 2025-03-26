@@ -197,7 +197,7 @@ NODE_ENV=production npm run server
 
 ### Scripts disponibles
 - `npm run dev` : Démarre le serveur de développement frontend
-- `npm run server` : Démarre le serveur backend
+- `npm start` : Démarre le serveur backend
 - `npm run build` : Build de production
 - `npm run lint` : Vérifie le code avec ESLint
 - `npm run preview` : Preview de la build de production

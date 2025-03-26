@@ -313,7 +313,7 @@ const ClubProfile = () => {
           <nav className="flex overflow-x-auto">
             <button
               className={`px-4 py-3 text-sm font-medium ${
-                activeTab === 'profile' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+                activeTab === 'profile' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-white hover:uppercase cursor-pointer'
               }`}
               onClick={() => setActiveTab('profile')}
             >
@@ -321,7 +321,7 @@ const ClubProfile = () => {
             </button>
             <button
               className={`px-4 py-3 text-sm font-medium ${
-                activeTab === 'members' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+                activeTab === 'members' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-white hover:uppercase cursor-pointer'
               }`}
               onClick={() => setActiveTab('members')}
             >
@@ -329,7 +329,7 @@ const ClubProfile = () => {
             </button>
             <button
               className={`px-4 py-3 text-sm font-medium ${
-                activeTab === 'abonnements' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+                activeTab === 'abonnements' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-white hover:uppercase cursor-pointer'
               }`}
               onClick={() => {
                 setActiveTab('abonnements');
@@ -846,7 +846,7 @@ const ClubProfile = () => {
                       type="text"
                       value={currentFormula.nom}
                       onChange={(e) => setCurrentFormula({ ...currentFormula, nom: e.target.value })}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
+                      className="w-full p-2 text-gray-600 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                       required
                     />
                   </div>
@@ -859,7 +859,7 @@ const ClubProfile = () => {
                       step="0.01"
                       value={currentFormula.prix}
                       onChange={(e) => setCurrentFormula({ ...currentFormula, prix: parseFloat(e.target.value) })}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
+                      className="w-full p-2 text-gray-600 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                       required
                     />
                   </div>
@@ -874,7 +874,7 @@ const ClubProfile = () => {
                         iconType: e.target.value === 'basic' ? 'medal' : e.target.value === 'premium' ? 'crown' : 'trophy',
                         couleur: e.target.value === 'basic' ? 'blue' : e.target.value === 'premium' ? 'purple' : 'amber'
                       })}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
+                      className="w-full p-2 text-gray-600 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                     >
                       <option value="basic">Basic</option>
                       <option value="premium">Premium</option>
@@ -888,7 +888,7 @@ const ClubProfile = () => {
                       id="recommande"
                       checked={currentFormula.recommande}
                       onChange={(e) => setCurrentFormula({ ...currentFormula, recommande: e.target.checked })}
-                      className="w-4 h-4 rounded text-primary focus:ring-primary"
+                      className="w-4 h-4 text-gray-600 rounded text-primary focus:ring-primary"
                     />
                     <label htmlFor="recommande" className="ml-2 text-sm text-gray-700">
                       Recommandé
@@ -907,8 +907,8 @@ const ClubProfile = () => {
                             newAvantages[index] = e.target.value;
                             setCurrentFormula({ ...currentFormula, avantages: newAvantages });
                           }}
-                          className="flex-1 p-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary"
-                          placeholder="Ex: Accès aux événements"
+                          className="flex-1 p-2 text-gray-600 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary"
+                          placeholder="Ex: Accès aux événements "
                         />
                         <button
                           type="button"

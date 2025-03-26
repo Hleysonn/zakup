@@ -137,19 +137,19 @@ const AbonnementClub = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <FaSpinner className="animate-spin text-blue-600 text-4xl" />
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <FaSpinner className="text-4xl text-blue-600 animate-spin" />
       </div>
     );
   }
 
   if (!club) {
     return (
-      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-        <p className="text-gray-700 mb-4">Ce club n'existe pas ou n'est plus disponible</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <p className="mb-4 text-gray-700">Ce club n'existe pas ou n'est plus disponible</p>
         <button
           onClick={() => navigate({ to: '/' })}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md"
+          className="px-4 py-2 text-white bg-blue-600 rounded-md"
         >
           Retour à l'accueil
         </button>
@@ -158,24 +158,24 @@ const AbonnementClub = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 bg-gray-50">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <button
           onClick={() => navigate({ to: `/clubs/${clubId}` })}
-          className="flex items-center text-blue-600 mb-8 hover:underline"
+          className="flex items-center mb-8 text-blue-600 hover:underline"
         >
           <FaArrowLeft className="mr-2" /> Retour au profil du club
         </button>
 
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Abonnement à {club.raisonSociale}</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="mb-12 text-center">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">Abonnement à {club.raisonSociale}</h1>
+          <p className="max-w-2xl mx-auto text-gray-600">
             Choisissez la formule qui vous convient et profitez d'avantages exclusifs auprès de votre club préféré.
           </p>
         </div>
 
         {formules.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid max-w-5xl grid-cols-1 gap-8 mx-auto md:grid-cols-3">
             {formules.map((formule) => (
               <motion.div
                 key={formule._id}
@@ -183,7 +183,7 @@ const AbonnementClub = () => {
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 {formule.recommande && (
-                  <div className="absolute top-0 right-0 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                  <div className="absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white bg-purple-600 rounded-bl-lg">
                     Recommandé
                   </div>
                 )}
@@ -191,8 +191,8 @@ const AbonnementClub = () => {
                   <div className="flex justify-center">
                     {renderIcon(formule)}
                   </div>
-                  <h3 className="text-xl font-bold text-center mt-4 text-gray-800">{formule.nom}</h3>
-                  <div className="text-center mt-2">
+                  <h3 className="mt-4 text-xl font-bold text-center text-gray-800">{formule.nom}</h3>
+                  <div className="mt-2 text-center">
                     <span className="text-3xl font-bold text-gray-900">{formule.prix}€</span>
                     <span className="text-gray-500">/mois</span>
                   </div>
@@ -202,7 +202,7 @@ const AbonnementClub = () => {
                   <ul className="space-y-3">
                     {formule.avantages.map((avantage, index) => (
                       <li key={index} className="flex items-start">
-                        <FaCheckCircle className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <FaCheckCircle className="flex-shrink-0 mt-1 mr-2 text-green-500" />
                         <span className="text-gray-700">{avantage}</span>
                       </li>
                     ))}
@@ -216,7 +216,7 @@ const AbonnementClub = () => {
                     }`}
                   >
                     {processing && selectedFormule === formule._id ? (
-                      <FaSpinner className="animate-spin mx-auto" />
+                      <FaSpinner className="mx-auto animate-spin" />
                     ) : (
                       "S'abonner"
                     )}
@@ -226,7 +226,7 @@ const AbonnementClub = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-gray-600">Aucune formule d'abonnement n'est disponible pour ce club actuellement.</p>
           </div>
         )}
