@@ -158,28 +158,63 @@ const ClubProfile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Vérification basique
-    if (!file.type.startsWith('image/')) {
-      toast.error('Veuillez sélectionner une image');
+    // Vérification de la taille (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+    if (file.size > maxSize) {
+      toast.error('L\'image ne doit pas dépasser 5MB');
       return;
     }
 
-    // Préparation simple du fichier
+    // Vérification du type MIME
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+      'image/bmp',
+      'image/tiff'
+    ];
+
+    console.log('Type MIME du fichier:', file.type);
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(`Format d'image non supporté. Formats acceptés : JPG, PNG, GIF, WEBP, SVG, BMP, TIFF`);
+      return;
+    }
+
+    // Vérification supplémentaire du type de fichier
+    if (!file.type.startsWith('image/')) {
+      toast.error('Le fichier sélectionné n\'est pas une image');
+      return;
+    }
+
+    // Préparation du fichier
     const formData = new FormData();
     formData.append('logo', file);
 
     try {
-      const response = await axiosInstance.post('/api/clubs/upload-logo', formData);
+      console.log('Envoi du fichier:', file.name, 'Type:', file.type, 'Taille:', file.size);
+      const response = await axiosInstance.post('/api/clubs/upload-logo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       
-      if (response.data?.logo) {
+      console.log('Réponse du serveur:', response.data);
+      
+      if (response.data?.success && response.data?.logoUrl) {
         setClubData(prev => ({
           ...prev,
-          logo: response.data.logo
+          logo: response.data.logoUrl
         }));
         toast.success('Logo mis à jour avec succès');
+      } else {
+        throw new Error('Format de réponse invalide');
       }
-    } catch {
-      toast.error('Erreur lors de l\'upload du logo');
+    } catch (error) {
+      console.error('Erreur détaillée lors de l\'upload:', error);
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de l\'upload du logo');
     }
   };
 
