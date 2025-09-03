@@ -134,13 +134,13 @@ export const login = asyncHandler(async (req, res, next) => {
 
   // Chercher l'utilisateur selon le rôle spécifié
   if (userRole === 'sponsor') {
-    user = await Sponsor.findOne({ email }).select('+password');
+    user = await Sponsor.findOne({ email: { $eq: email } }).select('+password');
     type = 'sponsor';
   } else if (userRole === 'club') {
-    user = await Club.findOne({ email }).select('+password');
+    user = await Club.findOne({ email: { $eq: email } }).select('+password');
     type = 'club';
   } else {
-    user = await User.findOne({ email }).select('+password');
+    user = await User.findOne({ email: { $eq: email } }).select('+password');
     type = 'user';
   }
 
