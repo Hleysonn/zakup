@@ -118,7 +118,7 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
   );
 
   const user = await User.findByIdAndUpdate(
-    req.user.id,
+    { $eq: req.user.id },
     fieldsToUpdate,
     {
       new: true,

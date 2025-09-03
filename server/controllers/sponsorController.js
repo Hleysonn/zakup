@@ -519,8 +519,8 @@ export const uploadSponsorLogo = asyncHandler(async (req, res, next) => {
     const logoPath = `/uploads/logos/${req.file.filename}`;
 
     // Mettre à jour le sponsor avec le nouveau logo
-    const sponsor = await Sponsor.findByIdAndUpdate(
-      req.user.id,
+    const sponsor = await Sponsor.findOneAndUpdate(
+      { _id: { $eq: req.user.id } },
       { logo: logoPath },
       { new: true, runValidators: true }
     );
