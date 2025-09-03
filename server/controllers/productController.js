@@ -149,7 +149,7 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
     );
   }
 
-  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+  product = await Product.findByIdAndUpdate({ _id: { $eq: req.params.id } }, req.body, {
     new: true,
     runValidators: true
   });
