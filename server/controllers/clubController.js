@@ -377,7 +377,7 @@ export const updateClubProduct = asyncHandler(async (req, res) => {
     req.body.images = [filePath];
   }
 
-  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+  product = await Product.findByIdAndUpdate({ _id: { $eq: req.params.id } }, req.body, {
     new: true,
     runValidators: true
   });
@@ -461,7 +461,7 @@ export const uploadClubLogo = asyncHandler(async (req, res, next) => {
 
   // Mettre à jour le club avec la nouvelle URL du logo
   const club = await Club.findByIdAndUpdate(
-    req.user.id,
+    { _id: { $eq: req.user.id } },
     { logo: logoUrl },
     {
       new: true,
@@ -563,7 +563,7 @@ export const updateFormule = asyncHandler(async (req, res) => {
   }
 
   // Mettre à jour la formule
-  formule = await Formule.findByIdAndUpdate(req.params.id, req.body, {
+  formule = await Formule.findByIdAndUpdate({ _id: { $eq: req.params.id } }, req.body, {
     new: true,
     runValidators: true
   });
